@@ -46,6 +46,11 @@ linked_*.ds
 unlinked.ds
 unlinked_spec.ds
 
+# Firebase / Secret keys — do NOT commit to public repos
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
+
 # Android related
 **/android/**/gradle-wrapper.jar
 .gradle/

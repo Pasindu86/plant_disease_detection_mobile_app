@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1003261916751",
+    "firebase_url": "https://plant-care-o1-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "plant-care-o1",
+    "storage_bucket": "plant-care-o1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1003261916751:android:5df092a89627630899dc3a",
+        "android_client_info": {
+          "package_name": "com.example.plant_disease_detection_mobile_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1003261916751-a2luf1asidipkgh89dcgh8fle63auret.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plant_disease_detection_mobile_app",
+            "certificate_hash": "f54f9f4ce729130c5f167f7139b4b91ca289f644"
+          }
+        },
+        {
+          "client_id": "1003261916751-to17pv85k8npra9l992nl7l69qm11vsq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyEyBPDC1i7t_yLpIT7ML8pC207A9bmR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1003261916751-to17pv85k8npra9l992nl7l69qm11vsq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1003261916751-julr1co3itm3ml6vd2jhcrmbvftms07u.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.plantDiseaseDetectionMobileApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
