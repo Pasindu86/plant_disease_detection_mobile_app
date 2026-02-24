@@ -85,5 +85,4 @@ class DefaultFirebaseOptions {
     projectId: 'plant-care-o1',
     storageBucket: 'plant-care-o1.firebasestorage.app',
   );
-
 }
