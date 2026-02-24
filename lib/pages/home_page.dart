@@ -13,7 +13,7 @@ class HomePage extends StatelessWidget {
       extendBody: true,
       appBar: AppBar(
         title: const Text(
-          'ChillGuard',
+          'Chilli Guard',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF4CAF50),
@@ -37,7 +37,7 @@ class HomePage extends StatelessWidget {
             Icon(Icons.eco_rounded, size: 80, color: Color(0xFF4CAF50)),
             SizedBox(height: 16),
             Text(
-              'Welcome to ChillGuard!',
+              'Welcome to Chilli Guard!',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
