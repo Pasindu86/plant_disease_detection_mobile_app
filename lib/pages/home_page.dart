@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:plant_disease_detection_mobile_app/pages/login_page.dart';
+import 'package:plant_disease_detection_mobile_app/pages/scan_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/user_profile.dart';
-import 'package:plant_disease_detection_mobile_app/services/auth_service.dart';
+import 'package:plant_disease_detection_mobile_app/widgets/custom_bottom_navbar.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final authService = AuthService();
-
     return Scaffold(
       backgroundColor: Colors.white,
+      extendBody: true,
       appBar: AppBar(
         title: const Text(
           'ChillGuard',
@@ -52,6 +51,32 @@ class HomePage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: CustomBottomNavBar(
+        onScanTap: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => const ScanPage(),
+              transitionsBuilder: (_, animation, __, child) {
+                return SlideTransition(
+                  position:
+                      Tween<Offset>(
+                        begin: const Offset(0, 1),
+                        end: Offset.zero,
+                      ).animate(
+                        CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.easeOutCubic,
+                        ),
+                      ),
+                  child: child,
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 400),
+            ),
+          );
+        },
       ),
     );
   }
