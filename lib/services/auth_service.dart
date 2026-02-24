@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // ─── Google Sign-In (Firebase) ──────────────────────────────
   Future<UserCredential?> signInWithGoogle() async {
@@ -38,6 +40,26 @@ class AuthService {
       final UserCredential userCredential =
           await _firebaseAuth.signInWithCredential(credential);
 
+      // Create user document in Firestore if doesn't exist
+      if (userCredential.user != null) {
+        final userDoc = await _firestore
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .get();
+        
+        if (!userDoc.exists) {
+          await _firestore
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .set({
+            'uid': userCredential.user!.uid,
+            'email': userCredential.user!.email ?? '',
+            'createdAt': DateTime.now().toIso8601String(),
+            'updatedAt': DateTime.now().toIso8601String(),
+          });
+        }
+      }
+
       return userCredential;
     } on GoogleSignInException catch (e) {
       if (e.code == GoogleSignInExceptionCode.canceled) {
@@ -60,6 +82,17 @@ class AuthService {
         email: email,
         password: password,
       );
+      
+      // Create user document in Firestore
+      if (credential.user != null) {
+        await _firestore.collection('users').doc(credential.user!.uid).set({
+          'uid': credential.user!.uid,
+          'email': email,
+          'createdAt': DateTime.now().toIso8601String(),
+          'updatedAt': DateTime.now().toIso8601String(),
+        });
+      }
+      
       return credential;
     } on FirebaseAuthException catch (e) {
       throw Exception(_mapFirebaseAuthError(e.code));

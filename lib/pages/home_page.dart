@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_disease_detection_mobile_app/pages/login_page.dart';
+import 'package:plant_disease_detection_mobile_app/pages/user_profile.dart';
 import 'package:plant_disease_detection_mobile_app/services/auth_service.dart';
 
 class HomePage extends StatelessWidget {
@@ -20,15 +21,12 @@ class HomePage extends StatelessWidget {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await authService.signOut();
-              if (context.mounted) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                );
-              }
+            icon: const Icon(Icons.person_outline),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const UserProfilePage()),
+              );
             },
           ),
         ],
