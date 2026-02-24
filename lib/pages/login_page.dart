@@ -128,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
           bottomRight: Radius.circular(30),
         ),
         gradient: LinearGradient(
-          colors: [Color(0xFF2E7D32), Color(0xFF66BB6A)],
+          colors: [Color.fromARGB(255, 84, 223, 91), Color(0xFF66BB6A)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -142,13 +142,29 @@ class _LoginPageState extends State<LoginPage> {
                 bottomLeft: Radius.circular(30),
                 bottomRight: Radius.circular(30),
               ),
-              child: Opacity(
-                opacity: 0.15,
-                child: Image.asset(
-                  'assets/images/plant_header.jpg',
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                ),
+              child: Stack(
+                children: [
+                  Image.asset(
+                    'assets/images/UI_interface.jpg',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                  ),
+                  // Light overlay for better text visibility
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.black.withOpacity(0.1),
+                          Colors.black.withOpacity(0.25),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -169,17 +185,17 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: const Icon(
                         Icons.eco_rounded,
-                        color: Colors.white,
+                        color: Color.fromARGB(255, 124, 240, 174),
                         size: 28,
                       ),
                     ),
                     const SizedBox(width: 12),
                     const Text(
-                      'ChillGuard',
+                      'Chilli Guard',
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Color.fromARGB(255, 254, 255, 254),
                       ),
                     ),
                   ],
@@ -189,7 +205,7 @@ class _LoginPageState extends State<LoginPage> {
                   'AI-powered care for your crops',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.white.withOpacity(0.9),
+                    color: const Color.fromARGB(255, 255, 255, 255),
                   ),
                 ),
               ],
@@ -215,11 +231,8 @@ class _LoginPageState extends State<LoginPage> {
             : Image.network(
                 'https://developers.google.com/identity/images/g-logo.png',
                 height: 22,
-                errorBuilder: (_, __, ___) => const Icon(
-                  Icons.g_mobiledata,
-                  size: 28,
-                  color: Colors.red,
-                ),
+                errorBuilder: (_, __, ___) =>
+                    const Icon(Icons.g_mobiledata, size: 28, color: Colors.red),
               ),
         label: const Text(
           'Sign up with Google',
@@ -300,10 +313,7 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         const Text(
           'Already a member? ',
-          style: TextStyle(
-            fontSize: 14,
-            color: Color(0xFF6B7280),
-          ),
+          style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
         ),
         GestureDetector(
           onTap: () {

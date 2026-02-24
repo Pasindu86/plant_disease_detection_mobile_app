@@ -16,10 +16,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
   final UserService _userService = UserService();
   final AuthService _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
-  
+
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _isEditing = false;
   UserModel? _userData;
@@ -69,7 +69,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         name: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
       );
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -107,10 +107,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Sign Out',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Sign Out', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -190,7 +187,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         children: [
                           const Icon(
                             Icons.email_outlined,
-                            color: Color(0xFF6B7280),
+                            color: Color.fromARGB(255, 64, 63, 63),
                             size: 20,
                           ),
                           const SizedBox(width: 12),
@@ -264,8 +261,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 });
                               },
                               style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                side: const BorderSide(color: Color(0xFF6B7280)),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                side: const BorderSide(
+                                  color: Color(0xFF6B7280),
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -285,7 +286,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
                               onPressed: _isLoading ? null : _saveProfile,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF4CAF50),
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

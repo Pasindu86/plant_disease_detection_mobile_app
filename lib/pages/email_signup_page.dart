@@ -11,6 +11,8 @@ class EmailSignUpPage extends StatefulWidget {
 
 class _EmailSignUpPageState extends State<EmailSignUpPage> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _mobileController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -21,6 +23,8 @@ class _EmailSignUpPageState extends State<EmailSignUpPage> {
 
   @override
   void dispose() {
+    _nameController.dispose();
+    _mobileController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -35,11 +39,15 @@ class _EmailSignUpPageState extends State<EmailSignUpPage> {
       await _authService.signUpWithEmail(
         email: _emailController.text.trim(),
         password: _passwordController.text,
+        name: _nameController.text.trim(),
+        phoneNumber: _mobileController.text.trim(),
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Account created! Check your email for verification.'),
+            content: Text(
+              'Account created! Check your email for verification.',
+            ),
             backgroundColor: Color(0xFF4CAF50),
           ),
         );
@@ -98,6 +106,36 @@ class _EmailSignUpPageState extends State<EmailSignUpPage> {
                 ),
                 const SizedBox(height: 32),
 
+                // Name Field
+                _buildLabel('Full Name'),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _nameController,
+                  keyboardType: TextInputType.name,
+                  decoration: _inputDecoration('full name'),
+                  validator: (val) {
+                    if (val == null || val.isEmpty) return 'Name is required';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Mobile Number Field
+                _buildLabel('Mobile Number'),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _mobileController,
+                  keyboardType: TextInputType.phone,
+                  decoration: _inputDecoration('+94 71 xxxxxxx'),
+                  validator: (val) {
+                    if (val == null || val.isEmpty)
+                      return 'Mobile number is required';
+                    if (val.length < 10) return 'Enter a valid mobile number';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+
                 // Email Field
                 _buildLabel('Email'),
                 const SizedBox(height: 8),
@@ -107,8 +145,9 @@ class _EmailSignUpPageState extends State<EmailSignUpPage> {
                   decoration: _inputDecoration('you@example.com'),
                   validator: (val) {
                     if (val == null || val.isEmpty) return 'Email is required';
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                        .hasMatch(val)) {
+                    if (!RegExp(
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    ).hasMatch(val)) {
                       return 'Enter a valid email';
                     }
                     return null;
@@ -160,8 +199,10 @@ class _EmailSignUpPageState extends State<EmailSignUpPage> {
                             : Icons.visibility_outlined,
                         color: const Color(0xFF9CA3AF),
                       ),
-                      onPressed: () => setState(() =>
-                          _obscureConfirmPassword = !_obscureConfirmPassword),
+                      onPressed: () => setState(
+                        () =>
+                            _obscureConfirmPassword = !_obscureConfirmPassword,
+                      ),
                     ),
                   ),
                   validator: (val) {

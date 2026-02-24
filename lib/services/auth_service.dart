@@ -14,17 +14,15 @@ class AuthService {
       final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
 
       // Get the ID token from authentication
-      final GoogleSignInAuthentication googleAuth =
-          googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
       // Get an access token via authorization client
       String? accessToken;
       try {
-        final GoogleSignInClientAuthorization clientAuth =
-            await googleUser.authorizationClient.authorizeScopes(
-          <String>['email', 'profile'],
-        );
+        final GoogleSignInClientAuthorization clientAuth = await googleUser
+            .authorizationClient
+            .authorizeScopes(<String>['email', 'profile']);
         accessToken = clientAuth.accessToken;
       } catch (_) {
         // Authorization may fail on some platforms; proceed with idToken only
@@ -37,8 +35,8 @@ class AuthService {
       );
 
       // Sign in to Firebase
-      final UserCredential userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
+      final UserCredential userCredential = await _firebaseAuth
+          .signInWithCredential(credential);
 
       // Create user document in Firestore if doesn't exist
       if (userCredential.user != null) {
@@ -46,17 +44,17 @@ class AuthService {
             .collection('users')
             .doc(userCredential.user!.uid)
             .get();
-        
+
         if (!userDoc.exists) {
           await _firestore
               .collection('users')
               .doc(userCredential.user!.uid)
               .set({
-            'uid': userCredential.user!.uid,
-            'email': userCredential.user!.email ?? '',
-            'createdAt': DateTime.now().toIso8601String(),
-            'updatedAt': DateTime.now().toIso8601String(),
-          });
+                'uid': userCredential.user!.uid,
+                'email': userCredential.user!.email ?? '',
+                'createdAt': DateTime.now().toIso8601String(),
+                'updatedAt': DateTime.now().toIso8601String(),
+              });
         }
       }
 
@@ -75,24 +73,25 @@ class AuthService {
   Future<UserCredential> signUpWithEmail({
     required String email,
     required String password,
+    String? name,
+    String? phoneNumber,
   }) async {
     try {
-      final UserCredential credential =
-          await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      
+      final UserCredential credential = await _firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
+
       // Create user document in Firestore
       if (credential.user != null) {
         await _firestore.collection('users').doc(credential.user!.uid).set({
           'uid': credential.user!.uid,
           'email': email,
+          'name': name,
+          'phoneNumber': phoneNumber,
           'createdAt': DateTime.now().toIso8601String(),
           'updatedAt': DateTime.now().toIso8601String(),
         });
       }
-      
+
       return credential;
     } on FirebaseAuthException catch (e) {
       throw Exception(_mapFirebaseAuthError(e.code));
@@ -107,11 +106,8 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final UserCredential credential =
-          await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final UserCredential credential = await _firebaseAuth
+          .signInWithEmailAndPassword(email: email, password: password);
       return credential;
     } on FirebaseAuthException catch (e) {
       throw Exception(_mapFirebaseAuthError(e.code));
