@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'widgets/scan_option_card.dart';
 
 class ScanPage extends StatelessWidget {
   const ScanPage({super.key});
@@ -51,57 +52,18 @@ class ScanPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildOptionCard(
+                ScanOptionCard(
                   icon: Icons.camera_alt_rounded,
                   label: 'Camera',
                   onTap: () {},
                 ),
                 const SizedBox(width: 20),
-                _buildOptionCard(
+                ScanOptionCard(
                   icon: Icons.photo_library_rounded,
                   label: 'Gallery',
                   onTap: () {},
                 ),
               ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  static Widget _buildOptionCard({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 120,
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 36, color: const Color(0xFF4CAF50)),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1A1A2E),
-              ),
             ),
           ],
         ),

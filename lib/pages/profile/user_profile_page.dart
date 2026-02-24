@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/user_model.dart';
-import '../services/user_service.dart';
-import '../services/auth_service.dart';
-import 'login_page.dart';
+import '../../models/user_model.dart';
+import '../../services/user_service.dart';
+import '../../services/auth_service.dart';
+import '../login/login_page.dart';
+import 'widgets/section_title.dart';
+import 'widgets/profile_input_decoration.dart';
+import 'widgets/profile_utils.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -164,7 +167,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       radius: 60,
                       backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
                       child: Text(
-                        _getInitials(_nameController.text),
+                        getInitials(_nameController.text),
                         style: const TextStyle(
                           fontSize: 40,
                           fontWeight: FontWeight.bold,
@@ -175,7 +178,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     const SizedBox(height: 24),
 
                     // Email (Read-only)
-                    _buildSectionTitle('Email Address'),
+                    const SectionTitle('Email Address'),
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -206,14 +209,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     const SizedBox(height: 24),
 
                     // Name Field
-                    _buildSectionTitle('Full Name'),
+                    const SectionTitle('Full Name'),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _nameController,
                       enabled: _isEditing,
-                      decoration: _inputDecoration(
-                        'Enter your full name',
-                        Icons.person_outline,
+                      decoration: profileInputDecoration(
+                        hint: 'Enter your full name',
+                        icon: Icons.person_outline,
+                        isEditing: _isEditing,
                       ),
                       validator: (val) {
                         if (_isEditing && (val == null || val.isEmpty)) {
@@ -225,15 +229,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     const SizedBox(height: 20),
 
                     // Phone Number Field
-                    _buildSectionTitle('Phone Number'),
+                    const SectionTitle('Phone Number'),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _phoneController,
                       enabled: _isEditing,
                       keyboardType: TextInputType.phone,
-                      decoration: _inputDecoration(
-                        'Enter your phone number',
-                        Icons.phone_outlined,
+                      decoration: profileInputDecoration(
+                        hint: 'Enter your phone number',
+                        icon: Icons.phone_outlined,
+                        isEditing: _isEditing,
                       ),
                       validator: (val) {
                         if (_isEditing && val != null && val.isNotEmpty) {
@@ -320,57 +325,5 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ),
             ),
     );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF1A1A2E),
-        ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String hint, IconData icon) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
-      prefixIcon: Icon(icon, color: const Color(0xFF6B7280), size: 20),
-      filled: true,
-      fillColor: _isEditing ? Colors.white : Colors.grey.shade100,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey.shade300),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: _isEditing ? Colors.grey.shade300 : Colors.transparent,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 2),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.red.shade400),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-    );
-  }
-
-  String _getInitials(String name) {
-    if (name.isEmpty) return '?';
-    final parts = name.trim().split(' ');
-    if (parts.length >= 2) {
-      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-    }
-    return name[0].toUpperCase();
   }
 }
