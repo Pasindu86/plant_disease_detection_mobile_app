@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:plant_disease_detection_mobile_app/pages/home_page.dart';
+import 'package:plant_disease_detection_mobile_app/pages/home/home_page.dart';
 import 'package:plant_disease_detection_mobile_app/services/auth_service.dart';
+import 'package:plant_disease_detection_mobile_app/widgets/auth_form_helpers.dart';
 
 class EmailSignUpPage extends StatefulWidget {
   const EmailSignUpPage({super.key});
@@ -107,12 +108,12 @@ class _EmailSignUpPageState extends State<EmailSignUpPage> {
                 const SizedBox(height: 32),
 
                 // Name Field
-                _buildLabel('Full Name'),
+                const FormLabel('Full Name'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _nameController,
                   keyboardType: TextInputType.name,
-                  decoration: _inputDecoration('full name'),
+                  decoration: authInputDecoration('full name'),
                   validator: (val) {
                     if (val == null || val.isEmpty) return 'Name is required';
                     return null;
@@ -121,12 +122,12 @@ class _EmailSignUpPageState extends State<EmailSignUpPage> {
                 const SizedBox(height: 20),
 
                 // Mobile Number Field
-                _buildLabel('Mobile Number'),
+                const FormLabel('Mobile Number'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _mobileController,
                   keyboardType: TextInputType.phone,
-                  decoration: _inputDecoration('+94 71 xxxxxxx'),
+                  decoration: authInputDecoration('+94 71 xxxxxxx'),
                   validator: (val) {
                     if (val == null || val.isEmpty)
                       return 'Mobile number is required';
@@ -137,12 +138,12 @@ class _EmailSignUpPageState extends State<EmailSignUpPage> {
                 const SizedBox(height: 20),
 
                 // Email Field
-                _buildLabel('Email'),
+                const FormLabel('Email'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: _inputDecoration('you@example.com'),
+                  decoration: authInputDecoration('you@example.com'),
                   validator: (val) {
                     if (val == null || val.isEmpty) return 'Email is required';
                     if (!RegExp(
@@ -156,12 +157,13 @@ class _EmailSignUpPageState extends State<EmailSignUpPage> {
                 const SizedBox(height: 20),
 
                 // Password Field
-                _buildLabel('Password'),
+                const FormLabel('Password'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
-                  decoration: _inputDecoration('Min 6 characters').copyWith(
+                  decoration:
+                      authInputDecoration('Min 6 characters').copyWith(
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -186,12 +188,13 @@ class _EmailSignUpPageState extends State<EmailSignUpPage> {
                 const SizedBox(height: 20),
 
                 // Confirm Password Field
-                _buildLabel('Confirm Password'),
+                const FormLabel('Confirm Password'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
-                  decoration: _inputDecoration('Re-enter password').copyWith(
+                  decoration:
+                      authInputDecoration('Re-enter password').copyWith(
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscureConfirmPassword
@@ -251,43 +254,6 @@ class _EmailSignUpPageState extends State<EmailSignUpPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: Color(0xFF374151),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFFBDBDBD), fontSize: 14),
-      filled: true,
-      fillColor: const Color(0xFFF9FAFB),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 1.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Colors.red),
       ),
     );
   }

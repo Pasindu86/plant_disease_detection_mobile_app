@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:plant_disease_detection_mobile_app/pages/home_page.dart';
+import 'package:plant_disease_detection_mobile_app/pages/home/home_page.dart';
 import 'package:plant_disease_detection_mobile_app/services/auth_service.dart';
+import 'package:plant_disease_detection_mobile_app/widgets/auth_form_helpers.dart';
 
 class EmailSignInPage extends StatefulWidget {
   const EmailSignInPage({super.key});
@@ -90,12 +91,12 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
                 const SizedBox(height: 32),
 
                 // Email Field
-                _buildLabel('Email'),
+                const FormLabel('Email'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: _inputDecoration('you@example.com'),
+                  decoration: authInputDecoration('you@example.com'),
                   validator: (val) {
                     if (val == null || val.isEmpty) return 'Email is required';
                     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
@@ -108,12 +109,13 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
                 const SizedBox(height: 20),
 
                 // Password Field
-                _buildLabel('Password'),
+                const FormLabel('Password'),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
-                  decoration: _inputDecoration('Enter your password').copyWith(
+                  decoration:
+                      authInputDecoration('Enter your password').copyWith(
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -171,43 +173,6 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: Color(0xFF374151),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFFBDBDBD), fontSize: 14),
-      filled: true,
-      fillColor: const Color(0xFFF9FAFB),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 1.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Colors.red),
       ),
     );
   }

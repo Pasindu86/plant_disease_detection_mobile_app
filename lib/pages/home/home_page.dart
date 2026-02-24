@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:plant_disease_detection_mobile_app/pages/scan_page.dart';
-import 'package:plant_disease_detection_mobile_app/pages/user_profile.dart';
+import 'package:plant_disease_detection_mobile_app/pages/scan/scan_page.dart';
+import 'package:plant_disease_detection_mobile_app/pages/profile/user_profile_page.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/custom_bottom_navbar.dart';
 
 class HomePage extends StatelessWidget {
