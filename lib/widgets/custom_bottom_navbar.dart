@@ -12,11 +12,20 @@ class CustomBottomNavBar extends StatefulWidget {
 
 class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     with TickerProviderStateMixin {
+  int _selectedIndex = 0;
+
   late AnimationController _pulseController;
   late AnimationController _tapController;
   late Animation<double> _pulseAnimation;
   late Animation<double> _scaleAnimation;
   late Animation<double> _glowAnimation;
+
+  static const _navItems = [
+    _NavItem(icon: Icons.home_rounded, label: 'Home'),
+    _NavItem(icon: Icons.yard_rounded, label: 'My Garden'),
+    _NavItem(icon: Icons.task_alt_rounded, label: 'Tasks'),
+    _NavItem(icon: Icons.people_alt_rounded, label: 'Community'),
+  ];
 
   @override
   void initState() {
@@ -76,26 +85,49 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
         alignment: Alignment.bottomCenter,
         clipBehavior: Clip.none,
         children: [
-          // --- White floating pill bar ---
+          // --- White floating pill bar with nav items ---
           Positioned(
             bottom: 20,
-            left: 36,
-            right: 36,
+            left: 24,
+            right: 24,
             child: Container(
-              height: 52,
+              height: 60,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(32),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF4CAF50).withOpacity(0.06),
-                    blurRadius: 20,
+                    color: const Color(0xFF4CAF50).withOpacity(0.08),
+                    blurRadius: 24,
                     offset: const Offset(0, 4),
                   ),
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 12,
                     offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildNavItem(0),
+                        _buildNavItem(1),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 68),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildNavItem(2),
+                        _buildNavItem(3),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -115,9 +147,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: const Color(
-                        0xFF4CAF50,
-                      ).withOpacity(0.12 * (1 - value)),
+                      color: const Color(0xFF4CAF50).withOpacity(0.12 * (1 - value)),
                       width: 1.5,
                     ),
                   ),
@@ -147,9 +177,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                         border: Border.all(color: Colors.white, width: 4),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(
-                              0xFF4CAF50,
-                            ).withOpacity(_glowAnimation.value),
+                            color: const Color(0xFF4CAF50).withOpacity(_glowAnimation.value),
                             blurRadius: 20,
                             offset: const Offset(0, 5),
                           ),
@@ -170,4 +198,48 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
       ),
     );
   }
+
+  Widget _buildNavItem(int index) {
+    final item = _navItems[index];
+    final isSelected = _selectedIndex == index;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _selectedIndex = index);
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              item.icon,
+              size: 22,
+              color: isSelected ? const Color(0xFF4CAF50) : const Color(0xFFB0BEC5),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              item.label,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? const Color(0xFF4CAF50) : const Color(0xFFB0BEC5),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem {
+  final IconData icon;
+  final String label;
+
+  const _NavItem({required this.icon, required this.label});
 }
