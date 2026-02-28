@@ -23,6 +23,22 @@
           }
         },
         {
+          "client_id": "1003261916751-pio4o4cqde0e5pns8kkevnplqcov63ah.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plant_disease_detection_mobile_app",
+            "certificate_hash": "30d85c93a9221ef1d4dd4cbc86a5292c73ec024c"
+          }
+        },
+        {
+          "client_id": "1003261916751-s5c1k9cmclt34hl6413erfj0ubsbj47g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plant_disease_detection_mobile_app",
+            "certificate_hash": "03fbc4f7384295646d00ec24e25b44566ce80fbf"
+          }
+        },
+        {
           "client_id": "1003261916751-to17pv85k8npra9l992nl7l69qm11vsq.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -17,7 +17,7 @@ class ClassificationResult {
 
 /// Service that loads a TFLite model and classifies chili leaf images.
 class PlantClassifierService {
-  static const String _modelPath = 'lib/models/model_unquant.tflite';
+  static const String _modelPath = 'lib/models/model.tflite';
   static const String _labelsPath = 'lib/models/labels.txt';
   static const int _inputSize = 224; // Standard MobileNet input size
 
@@ -75,14 +75,15 @@ class PlantClassifierService {
     final resized = img.copyResize(image, width: _inputSize, height: _inputSize);
 
     // Create input tensor – normalized float32 [1, 224, 224, 3]
+    // Teachable Machine models expect pixel values in [-1, 1] range
     final input = Float32List(_inputSize * _inputSize * 3);
     int pixelIndex = 0;
     for (int y = 0; y < _inputSize; y++) {
       for (int x = 0; x < _inputSize; x++) {
         final pixel = resized.getPixel(x, y);
-        input[pixelIndex++] = pixel.r / 255.0;
-        input[pixelIndex++] = pixel.g / 255.0;
-        input[pixelIndex++] = pixel.b / 255.0;
+        input[pixelIndex++] = pixel.r / 127.5 - 1.0;
+        input[pixelIndex++] = pixel.g / 127.5 - 1.0;
+        input[pixelIndex++] = pixel.b / 127.5 - 1.0;
       }
     }
 
