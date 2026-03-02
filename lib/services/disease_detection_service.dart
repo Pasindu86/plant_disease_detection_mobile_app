@@ -1,0 +1,103 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+/// Service to save and retrieve disease detection records from Firestore.
+class DiseaseDetectionService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  /// Save a disease detection result to Firestore
+  Future<void> saveDetection({
+    required String diseaseName,
+    required double confidence,
+    required bool isHealthy,
+    String? imagePath,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('User must be logged in to save detections');
+      }
+
+      await _firestore.collection('plant-care-o1').add({
+        'userId': user.uid,
+        'userEmail': user.email,
+        'diseaseName': diseaseName,
+        'confidence': confidence,
+        'isHealthy': isHealthy,
+        'imagePath': imagePath,
+        'timestamp': FieldValue.serverTimestamp(),
+        'detectedAt': DateTime.now().toIso8601String(),
+      });
+      
+      print('✅ Detection saved successfully: $diseaseName ($confidence)');
+    } catch (e) {
+      print('❌ Error saving detection: $e');
+      rethrow;
+    }
+  }
+
+  /// Get all detections for the current user
+  Stream<List<Map<String, dynamic>>> getUserDetections() {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return Stream.value([]);
+    }
+
+    return _firestore
+        .collection('plant-care-o1')
+        .where('userId', isEqualTo: user.uid)
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+    });
+  }
+
+  /// Get detection count for the current user
+  Future<int> getDetectionCount() async {
+    final user = _auth.currentUser;
+    if (user == null) return 0;
+
+    final snapshot = await _firestore
+        .collection('plant-care-o1')
+        .where('userId', isEqualTo: user.uid)
+        .get();
+
+    return snapshot.docs.length;
+  }
+
+  /// Delete a specific detection
+  Future<void> deleteDetection(String detectionId) async {
+    try {
+      await _firestore.collection('plant-care-o1').doc(detectionId).delete();
+      print('✅ Detection deleted successfully');
+    } catch (e) {
+      print('❌ Error deleting detection: $e');
+      rethrow;
+    }
+  }
+
+  /// Get recent detections (limited to n)
+  Future<List<Map<String, dynamic>>> getRecentDetections({int limit = 10}) async {
+    final user = _auth.currentUser;
+    if (user == null) return [];
+
+    final snapshot = await _firestore
+        .collection('plant-care-o1')
+        .where('userId', isEqualTo: user.uid)
+        .orderBy('timestamp', descending: true)
+        .limit(limit)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return data;
+    }).toList();
+  }
+}

@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:plant_disease_detection_mobile_app/services/plant_classifier_service.dart';
+import 'package:plant_disease_detection_mobile_app/services/disease_detection_service.dart';
 
-class ResultPage extends StatelessWidget {
+class ResultPage extends StatefulWidget {
   final String imagePath;
   final List<ClassificationResult> results;
 
@@ -12,6 +13,53 @@ class ResultPage extends StatelessWidget {
     required this.imagePath,
     required this.results,
   });
+
+  @override
+  State<ResultPage> createState() => _ResultPageState();
+}
+
+class _ResultPageState extends State<ResultPage> {
+  final DiseaseDetectionService _detectionService = DiseaseDetectionService();
+
+  @override
+  void initState() {
+    super.initState();
+    _saveDetectionToFirestore();
+  }
+
+  Future<void> _saveDetectionToFirestore() async {
+    if (widget.results.isEmpty) return;
+
+    try {
+      final topResult = widget.results[0];
+      await _detectionService.saveDetection(
+        diseaseName: topResult.label,
+        confidence: topResult.confidence,
+        isHealthy: topResult.isHealthy,
+        imagePath: widget.imagePath,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Detection saved successfully'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
 
   /// Returns disease-specific information (description + care tips).
   static Map<String, String> _getDiseaseInfo(String label) {
@@ -60,9 +108,61 @@ class ResultPage extends StatelessWidget {
     };
   }
 
+  Widget _buildPredictionRow(ClassificationResult r, ClassificationResult? topResult) {
+    final pct = (r.confidence * 100).toStringAsFixed(1);
+    final isTop = r == topResult;
+    
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 130,
+            child: Text(
+              r.label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isTop ? FontWeight.bold : FontWeight.normal,
+                color: isTop ? const Color(0xFF1A1A2E) : Colors.grey[700],
+              ),
+            ),
+          ),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: r.confidence,
+                minHeight: 8,
+                backgroundColor: Colors.grey[200],
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  isTop
+                      ? (r.isHealthy ? const Color(0xFF4CAF50) : const Color(0xFFE53935))
+                      : Colors.grey[400]!,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 48,
+            child: Text(
+              '$pct%',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isTop ? FontWeight.bold : FontWeight.normal,
+                color: isTop ? const Color(0xFF1A1A2E) : Colors.grey[600],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final topResult = results.isNotEmpty ? results[0] : null;
+    final topResult = widget.results.isNotEmpty ? widget.results[0] : null;
     final isHealthy = topResult?.isHealthy ?? false;
     final confidencePercent = ((topResult?.confidence ?? 0) * 100).toStringAsFixed(1);
     final info = _getDiseaseInfo(topResult?.label ?? '');
@@ -89,7 +189,7 @@ class ResultPage extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image.file(
-                    File(imagePath),
+                    File(widget.imagePath),
                     height: 220,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -258,56 +358,7 @@ class ResultPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 14),
-                  ...results.map((r) {
-                    final pct = (r.confidence * 100).toStringAsFixed(1);
-                    final isTop = r == topResult;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 130,
-                            child: Text(
-                              r.label,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: isTop ? FontWeight.bold : FontWeight.normal,
-                                color: isTop ? const Color(0xFF1A1A2E) : Colors.grey[700],
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(6),
-                              child: LinearProgressIndicator(
-                                value: r.confidence,
-                                minHeight: 8,
-                                backgroundColor: Colors.grey[200],
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  isTop
-                                      ? (r.isHealthy ? const Color(0xFF4CAF50) : const Color(0xFFE53935))
-                                      : Colors.grey[400]!,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          SizedBox(
-                            width: 48,
-                            child: Text(
-                              '$pct%',
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: isTop ? FontWeight.bold : FontWeight.normal,
-                                color: isTop ? const Color(0xFF1A1A2E) : Colors.grey[600],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                  ...widget.results.map((r) => _buildPredictionRow(r, topResult)).toList(),
                 ],
               ),
             ),
