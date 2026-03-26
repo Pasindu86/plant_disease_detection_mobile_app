@@ -76,6 +76,7 @@ flutter:
   assets:
     - assets/images/
     - lib/models/model.tflite
+    - lib/models/train.tflite
     - lib/models/labels.txt
 
   # An image asset can refer to one or more resolution-specific "variants", see

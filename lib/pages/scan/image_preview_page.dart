@@ -28,7 +28,8 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
 
     try {
       await _classifier.loadModel();
-      final results = await _classifier.classifyImage(File(widget.imagePath));
+      // Run both models and get the dual result
+      final dualResult = await _classifier.classifyImage(File(widget.imagePath));
 
       if (!mounted) return;
 
@@ -36,7 +37,8 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
         MaterialPageRoute(
           builder: (_) => ResultPage(
             imagePath: widget.imagePath,
-            results: results,
+            results: dualResult.winner.results,
+            dualResult: dualResult,
           ),
         ),
       );
@@ -109,7 +111,6 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
           ),
           const SizedBox(height: 16),
 
-          // Analyze button
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
             child: SizedBox(
