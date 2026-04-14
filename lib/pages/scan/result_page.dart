@@ -241,7 +241,7 @@ class _ResultPageState extends State<ResultPage> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -257,7 +257,7 @@ class _ResultPageState extends State<ResultPage> {
                         height: 48,
                         decoration: BoxDecoration(
                           color: (isHealthy ? const Color(0xFF4CAF50) : const Color(0xFFE53935))
-                              .withOpacity(0.12),
+                              .withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Icon(
@@ -288,24 +288,6 @@ class _ResultPageState extends State<ResultPage> {
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            if ((topResult?.modelSource ?? '').isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(Icons.model_training,
-                                      size: 13, color: Color(0xFF009688)),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    topResult!.modelSource,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFF009688),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
                           ],
                         ),
                       ),
@@ -348,12 +330,6 @@ class _ResultPageState extends State<ResultPage> {
             ),
             const SizedBox(height: 16),
 
-            // ── Dual-model comparison ──
-            if (widget.dualResult != null) ...[
-              _DualModelCard(dualResult: widget.dualResult!),
-              const SizedBox(height: 16),
-            ],
-
             // ── All predictions ──
             Container(
               padding: const EdgeInsets.all(20),
@@ -362,7 +338,7 @@ class _ResultPageState extends State<ResultPage> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -377,7 +353,7 @@ class _ResultPageState extends State<ResultPage> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'All Predictions  (${widget.dualResult == null ? "" : widget.dualResult!.isDualModel ? (widget.dualResult!.modelsAgree ? "Ensemble" : "Best Model") : "Model 1"})',
+                          'All Predictions',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -388,7 +364,7 @@ class _ResultPageState extends State<ResultPage> {
                     ],
                   ),
                   const SizedBox(height: 14),
-                  ...widget.results.map((r) => _buildPredictionRow(r, topResult)).toList(),
+                  ...widget.results.map((r) => _buildPredictionRow(r, topResult)),
                 ],
               ),
             ),
@@ -448,7 +424,7 @@ class _InfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -478,228 +454,6 @@ class _InfoCard extends StatelessWidget {
               fontSize: 14,
               color: Color(0xFF4B5563),
               height: 1.6,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Card that shows both models' top predictions side-by-side and highlights
-/// the winner with a crown badge.
-class _DualModelCard extends StatelessWidget {
-  final DualModelResult dualResult;
-
-  const _DualModelCard({required this.dualResult});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          const Row(
-            children: [
-              Icon(Icons.model_training, color: Color(0xFF009688), size: 22),
-              SizedBox(width: 8),
-              Text(
-                'Ensemble Fusion (Both Models)',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1A2E),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          // Agreement / disagreement status badge
-          if (dualResult.isDualModel)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: dualResult.modelsAgree
-                    ? const Color(0xFF4CAF50).withOpacity(0.12)
-                    : const Color(0xFFF59E0B).withOpacity(0.12),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    dualResult.modelsAgree
-                        ? Icons.check_circle_outline
-                        : Icons.warning_amber_rounded,
-                    size: 14,
-                    color: dualResult.modelsAgree
-                        ? const Color(0xFF4CAF50)
-                        : const Color(0xFFF59E0B),
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    dualResult.modelsAgree
-                        ? 'Both models agree — scores merged for higher accuracy'
-                        : 'Models disagree — using the more confident model\'s result',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: dualResult.modelsAgree
-                          ? const Color(0xFF4CAF50)
-                          : const Color(0xFFF59E0B),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          if (!dualResult.isDualModel)
-            Text(
-              'Only Model 1 available — train.tflite not loaded.',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
-          const SizedBox(height: 14),
-
-          // Model 1 row
-          _ModelRow(
-            prediction: dualResult.model1,
-            isWinner: dualResult.winner.modelName == dualResult.model1.modelName,
-          ),
-
-          // Model 2 row (only when available)
-          if (dualResult.model2 != null) ...[
-            const SizedBox(height: 10),
-            _ModelRow(
-              prediction: dualResult.model2!,
-              isWinner: dualResult.winner.modelName == dualResult.model2!.modelName,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ModelRow extends StatelessWidget {
-  final ModelPrediction prediction;
-  final bool isWinner;
-
-  const _ModelRow({required this.prediction, required this.isWinner});
-
-  @override
-  Widget build(BuildContext context) {
-    final top = prediction.top;
-    final pct = ((top?.confidence ?? 0) * 100).toStringAsFixed(1);
-    final healthy = top?.isHealthy ?? false;
-    final barColor = isWinner
-        ? (healthy ? const Color(0xFF4CAF50) : const Color(0xFFE53935))
-        : Colors.grey[400]!;
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isWinner
-            ? (healthy
-                ? const Color(0xFF4CAF50).withOpacity(0.07)
-                : const Color(0xFFE53935).withOpacity(0.07))
-            : Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isWinner
-              ? (healthy ? const Color(0xFF4CAF50) : const Color(0xFFE53935))
-              : Colors.grey[300]!,
-          width: isWinner ? 1.5 : 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Model label + winner badge
-          Row(
-            children: [
-              Text(
-                prediction.modelName,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: isWinner ? const Color(0xFF1A1A2E) : Colors.grey[600],
-                ),
-              ),
-              if (isWinner) ...[
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFC107),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.emoji_events_rounded, size: 12, color: Colors.white),
-                      SizedBox(width: 3),
-                      Text(
-                        'Winner',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 6),
-
-          // Disease label + confidence bar
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  top?.label ?? '—',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: isWinner ? const Color(0xFF1A1A2E) : Colors.grey[600],
-                    fontWeight:
-                        isWinner ? FontWeight.w600 : FontWeight.normal,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '$pct%',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: isWinner ? barColor : Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: top?.confidence ?? 0,
-              minHeight: 7,
-              backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation<Color>(barColor),
             ),
           ),
         ],

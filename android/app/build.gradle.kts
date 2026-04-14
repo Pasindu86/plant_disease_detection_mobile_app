@@ -42,11 +42,7 @@ android {
     }
 
     aaptOptions {
-<<<<<<< HEAD
-        noCompress("tflite", "lite")
-=======
         noCompress += "tflite"
->>>>>>> 3217e9a4ccd8a5f69a05c9a216c3f92f02f1edc4
     }
 }
 

@@ -69,16 +69,21 @@ class PlantClassifierService {
   static const String _model1Path  = 'lib/models/model.tflite';
   static const String _labels1Path = 'lib/models/labels.txt';
 
-  // ── Model 2 (train) ─────────────────────────────────────────────────────
+  // Model 2 (train) usually trained via TensorFlow Keras flow_from_directory
+  // uses alphabetical sorting for its class indices, which differs from labels.txt.
+  static const List<String> _model2LabelsList = [
+    "Bacterial Spot",
+    "Cercospora Leaf Spot",
+    "Curl Virus",
+    "Healthy Leaves",
+    "Nutrition Deficiency",
+    "White Spot",
+  ];
+
   static const String _model2Path  = 'lib/models/train.tflite';
-  static const String _labels2Path = 'lib/models/labels.txt';
+  // We no longer read labels for Model 2 from labels.txt to avoid the alphabetical mismatch.
 
-  // ── Ensemble weights (must sum to 1.0) ──────────────────────────────────
-  // Model 2 (train.tflite) is larger (9.5 MB vs 2.1 MB) so we give it
-  // slightly more weight as it likely trained longer / on more data.
-  static const double _w1 = 0.4; // weight for model.tflite
-  static const double _w2 = 0.6; // weight for train.tflite
-
+  // ── Input size for models ────────────────────────────────────────────────
   static const int _inputSize = 224;
 
   Interpreter? _interpreter1;
@@ -106,7 +111,7 @@ class PlantClassifierService {
     // Model 2 is optional – graceful fallback if missing
     try {
       _interpreter2 = await Interpreter.fromAsset(_model2Path);
-      _labels2 = await _loadLabels(_labels2Path);
+      _labels2 = _model2LabelsList;
       _model2Available = true;
     } catch (_) {
       _model2Available = false;
@@ -188,32 +193,36 @@ class PlantClassifierService {
 
     final top1Label = pred1.top?.label ?? '';
     final top2Label = pred2.top?.label ?? '';
-    final agree = top1Label == top2Label;
+    final agree = top1Label == top2Label && top1Label.isNotEmpty;
 
-    ModelPrediction ensemblePred;
+    // Define weights for the models (Model 2 is more heavily weighted)
+    const double w1 = 0.4;
+    const double w2 = 0.6;
 
-    if (agree) {
-      // ── Both agree → average scores per class for a stronger result ──
-      final numClasses = _labels1.length;
-      final fusedRaw = List<double>.generate(numClasses, (i) {
-        return raw1[i] * _w1 + raw2[i] * _w2;
-      });
-      final total = fusedRaw.fold(0.0, (s, v) => s + v);
-      final normFused = total > 0
-          ? fusedRaw.map((v) => v / total).toList()
-          : fusedRaw;
-
-      ensemblePred = _buildPrediction(
-        raw: normFused,
-        labels: _labels1,
-        modelName: 'Ensemble (agreed)',
-      );
-    } else {
-      // ── Disagree → trust the more confident model ────────────────────
-      final conf1 = pred1.top?.confidence ?? 0.0;
-      final conf2 = pred2.top?.confidence ?? 0.0;
-      ensemblePred = conf1 >= conf2 ? pred1 : pred2;
+    // Merge by taking a weighted average of the confidence scores from both models
+    final Map<String, double> weightedConfidences = {};
+    for (var result in pred1.results) {
+      weightedConfidences[result.label] = (weightedConfidences[result.label] ?? 0.0) + (result.confidence * w1);
     }
+    for (var result in pred2.results) {
+      weightedConfidences[result.label] = (weightedConfidences[result.label] ?? 0.0) + (result.confidence * w2);
+    }
+
+    // Create merged results and sort by highest total score
+    final List<ClassificationResult> mergedResults = weightedConfidences.entries.map((e) {
+      return ClassificationResult(
+        label: e.key,
+        confidence: e.value,
+        modelSource: 'Merged Models',
+      );
+    }).toList();
+
+    mergedResults.sort((a, b) => b.confidence.compareTo(a.confidence));
+
+    ModelPrediction ensemblePred = ModelPrediction(
+      modelName: 'Merged Models',
+      results: mergedResults,
+    );
 
     return DualModelResult(
       ensemble: ensemblePred,
@@ -237,9 +246,11 @@ class PlantClassifierService {
     for (int y = 0; y < _inputSize; y++) {
       for (int x = 0; x < _inputSize; x++) {
         final pixel = resized.getPixel(x, y);
-        input[idx++] = pixel.r / 127.5 - 1.0;
-        input[idx++] = pixel.g / 127.5 - 1.0;
-        input[idx++] = pixel.b / 127.5 - 1.0;
+        // The ML model was trained with rescale=1.0/255.0 so we strictly divide by 255.0
+        // (Do NOT use / 127.5 - 1.0)
+        input[idx++] = pixel.r / 255.0;
+        input[idx++] = pixel.g / 255.0;
+        input[idx++] = pixel.b / 255.0;
       }
     }
     return input.reshape([1, _inputSize, _inputSize, 3]);

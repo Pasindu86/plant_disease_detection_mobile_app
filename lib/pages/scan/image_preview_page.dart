@@ -4,13 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:plant_disease_detection_mobile_app/services/plant_classifier_service.dart';
 import 'result_page.dart';
 
-<<<<<<< HEAD
-=======
-import '../../models/disease_model.dart';
-import '../../services/disease_classifier_service.dart';
-import 'disease_result_page.dart';
-
->>>>>>> 3217e9a4ccd8a5f69a05c9a216c3f92f02f1edc4
 class ImagePreviewPage extends StatefulWidget {
   final String imagePath;
 
@@ -21,9 +14,9 @@ class ImagePreviewPage extends StatefulWidget {
 }
 
 class _ImagePreviewPageState extends State<ImagePreviewPage> {
-<<<<<<< HEAD
   final PlantClassifierService _classifier = PlantClassifierService();
   bool _isAnalyzing = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -32,7 +25,10 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
   }
 
   Future<void> _analyzeImage() async {
-    setState(() => _isAnalyzing = true);
+    setState(() {
+      _isAnalyzing = true;
+      _errorMessage = null;
+    });
 
     try {
       await _classifier.loadModel();
@@ -41,57 +37,23 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
 
       if (!mounted) return;
 
-      Navigator.of(context).push(
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => ResultPage(
             imagePath: widget.imagePath,
             results: dualResult.winner.results,
             dualResult: dualResult,
-=======
-  final DiseaseClassifierService _classifier = DiseaseClassifierService();
-  bool _isAnalyzing = false;
-  String? _errorMessage;
-
-  Future<void> _analyzeImage() async {
-    setState(() {
-      _isAnalyzing = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final result = await _classifier.classifyImage(widget.imagePath);
-      final topPredictions = _classifier.getTopPredictions(result);
-
-      if (!mounted) return;
-
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => DiseaseResultPage(
-            imagePath: widget.imagePath,
-            result: result,
-            topPredictions: topPredictions,
-            diseaseInfo: DiseaseInfo.getInfo(result.name),
->>>>>>> 3217e9a4ccd8a5f69a05c9a216c3f92f02f1edc4
           ),
         ),
       );
     } catch (e) {
       if (!mounted) return;
-<<<<<<< HEAD
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Analysis failed: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isAnalyzing = false);
-=======
       setState(() {
         _isAnalyzing = false;
         _errorMessage = 'Failed to analyze image: $e';
       });
->>>>>>> 3217e9a4ccd8a5f69a05c9a216c3f92f02f1edc4
+    } finally {
+      if (mounted) setState(() => _isAnalyzing = false);
     }
   }
 
@@ -113,10 +75,7 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
           // Image preview
           Expanded(
             child: Container(
-<<<<<<< HEAD
-=======
               width: double.infinity,
->>>>>>> 3217e9a4ccd8a5f69a05c9a216c3f92f02f1edc4
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
@@ -134,21 +93,13 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
                     ? Image.file(
                         File(widget.imagePath),
                         fit: BoxFit.cover,
-<<<<<<< HEAD
                         width: double.infinity,
                       )
                     : const Center(child: Text('No image to display')),
-=======
-                      )
-                    : const Center(
-                        child: Text('No image to display'),
-                      ),
->>>>>>> 3217e9a4ccd8a5f69a05c9a216c3f92f02f1edc4
               ),
             ),
           ),
 
-<<<<<<< HEAD
           // Info text
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 24),
@@ -163,9 +114,6 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
           ),
           const SizedBox(height: 16),
 
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-=======
           // Error message
           if (_errorMessage != null)
             Padding(
@@ -195,10 +143,8 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
               ),
             ),
 
-          // Analyze button
           Padding(
-            padding: const EdgeInsets.all(24),
->>>>>>> 3217e9a4ccd8a5f69a05c9a216c3f92f02f1edc4
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
             child: SizedBox(
               width: double.infinity,
               height: 56,
@@ -217,13 +163,8 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
-<<<<<<< HEAD
-                            width: 22,
-                            height: 22,
-=======
                             width: 24,
                             height: 24,
->>>>>>> 3217e9a4ccd8a5f69a05c9a216c3f92f02f1edc4
                             child: CircularProgressIndicator(
                               color: Colors.white,
                               strokeWidth: 2.5,
@@ -233,11 +174,7 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
                           Text(
                             'Analyzing...',
                             style: TextStyle(
-<<<<<<< HEAD
-                              fontSize: 17,
-=======
                               fontSize: 18,
->>>>>>> 3217e9a4ccd8a5f69a05c9a216c3f92f02f1edc4
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -246,20 +183,12 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
                     : const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-<<<<<<< HEAD
                           Icon(Icons.search_rounded, size: 24),
-=======
-                          Icon(Icons.biotech_rounded, size: 24),
->>>>>>> 3217e9a4ccd8a5f69a05c9a216c3f92f02f1edc4
                           SizedBox(width: 8),
                           Text(
                             'Analyze Leaf',
                             style: TextStyle(
-<<<<<<< HEAD
-                              fontSize: 17,
-=======
                               fontSize: 18,
->>>>>>> 3217e9a4ccd8a5f69a05c9a216c3f92f02f1edc4
                               fontWeight: FontWeight.bold,
                             ),
                           ),
