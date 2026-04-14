@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'firebase_options.dart';
 import 'pages/login/login_page.dart';
 import 'pages/home/home_page.dart';
+import 'globals.dart';
+import 'widgets/animated_chat_button.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables for Gemini API
+  await dotenv.load(fileName: ".env");
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -24,6 +30,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: globalNavigatorKey,
+      navigatorObservers: [globalRouteObserver],
+      builder: (context, child) {
+        return Stack(
+          children: [
+            if (child != null) child,
+            const AnimatedChatButton(),
+          ],
+        );
+      },
       title: 'ChillGuard',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
