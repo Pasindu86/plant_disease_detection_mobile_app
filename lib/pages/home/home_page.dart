@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plant_disease_detection_mobile_app/pages/scan/scan_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/profile/user_profile_page.dart';
+import 'package:plant_disease_detection_mobile_app/pages/chat/chat_page.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/custom_bottom_navbar.dart';
 
 class HomePage extends StatelessWidget {
@@ -19,6 +20,15 @@ class HomePage extends StatelessWidget {
         backgroundColor: const Color(0xFF4CAF50),
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.chat_bubble_outline),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ChatPage()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.person_outline),
             onPressed: () {
