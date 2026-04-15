@@ -16,6 +16,7 @@ class ImagePreviewPage extends StatefulWidget {
 class _ImagePreviewPageState extends State<ImagePreviewPage> {
   final PlantClassifierService _classifier = PlantClassifierService();
   bool _isAnalyzing = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -24,30 +25,33 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
   }
 
   Future<void> _analyzeImage() async {
-    setState(() => _isAnalyzing = true);
+    setState(() {
+      _isAnalyzing = true;
+      _errorMessage = null;
+    });
 
     try {
       await _classifier.loadModel();
-      final results = await _classifier.classifyImage(File(widget.imagePath));
+      // Run both models and get the dual result
+      final dualResult = await _classifier.classifyImage(File(widget.imagePath));
 
       if (!mounted) return;
 
-      Navigator.of(context).push(
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => ResultPage(
             imagePath: widget.imagePath,
-            results: results,
+            results: dualResult.winner.results,
+            dualResult: dualResult,
           ),
         ),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Analysis failed: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      setState(() {
+        _isAnalyzing = false;
+        _errorMessage = 'Failed to analyze image: $e';
+      });
     } finally {
       if (mounted) setState(() => _isAnalyzing = false);
     }
@@ -71,6 +75,7 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
           // Image preview
           Expanded(
             child: Container(
+              width: double.infinity,
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
@@ -109,7 +114,35 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
           ),
           const SizedBox(height: 16),
 
-          // Analyze button
+          // Error message
+          if (_errorMessage != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red.shade700),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _errorMessage!,
+                        style: TextStyle(
+                          color: Colors.red.shade700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
             child: SizedBox(
@@ -130,8 +163,8 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
-                            width: 22,
-                            height: 22,
+                            width: 24,
+                            height: 24,
                             child: CircularProgressIndicator(
                               color: Colors.white,
                               strokeWidth: 2.5,
@@ -141,7 +174,7 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
                           Text(
                             'Analyzing...',
                             style: TextStyle(
-                              fontSize: 17,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -155,7 +188,7 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
                           Text(
                             'Analyze Leaf',
                             style: TextStyle(
-                              fontSize: 17,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

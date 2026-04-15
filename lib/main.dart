@@ -13,7 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables for Gemini API
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "assets/env/app.env");
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
