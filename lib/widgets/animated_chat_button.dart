@@ -46,9 +46,14 @@ class _AnimatedChatButtonState extends State<AnimatedChatButton>
           return const SizedBox.shrink();
         }
 
-        return Positioned(
-          bottom: 120, // Just above the bottom nav bar (typically 110px)
-          right: 24,
+        return ValueListenableBuilder<bool>(
+          valueListenable: showAiAssistant,
+          builder: (context, showAi, child) {
+            if (!showAi) return const SizedBox.shrink();
+
+            return Positioned(
+              bottom: 120, // Just above the bottom nav bar (typically 110px)
+              right: 24,
           child: Material(
             color: Colors.transparent,
             child: ScaleTransition(
@@ -83,6 +88,8 @@ class _AnimatedChatButtonState extends State<AnimatedChatButton>
               ),
             ),
           ),
+            );
+          },
         );
       },
     );

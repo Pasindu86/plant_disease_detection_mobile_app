@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plant_disease_detection_mobile_app/pages/email_signup/email_signup_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/email_signin/email_signin_page.dart';
-import 'package:plant_disease_detection_mobile_app/pages/home/home_page.dart';
+import 'package:plant_disease_detection_mobile_app/pages/onboarding/onboarding_page.dart';
 import 'package:plant_disease_detection_mobile_app/services/auth_service.dart';
 import 'widgets/login_header.dart';
 import 'widgets/google_sign_in_button.dart';
@@ -28,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
       if (result != null && mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
+          MaterialPageRoute(builder: (_) => const OnboardingPage()),
         );
       }
     } catch (e) {
