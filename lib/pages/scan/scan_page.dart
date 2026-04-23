@@ -1,8 +1,36 @@
 import 'package:flutter/material.dart';
-import 'widgets/scan_option_card.dart';
+import 'package:image_picker/image_picker.dart';
 
-class ScanPage extends StatelessWidget {
+import 'widgets/scan_option_card.dart';
+import 'image_preview_page.dart';
+
+class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
+
+  @override
+  State<ScanPage> createState() => _ScanPageState();
+}
+
+class _ScanPageState extends State<ScanPage> {
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? picked = await _picker.pickImage(source: source, maxWidth: 2048);
+      if (!mounted) return;
+      if (picked == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No image selected')));
+        return;
+      }
+
+      // Navigate to a simple preview page
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => ImagePreviewPage(imagePath: picked.path),
+      ));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error selecting image: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,13 +83,13 @@ class ScanPage extends StatelessWidget {
                 ScanOptionCard(
                   icon: Icons.camera_alt_rounded,
                   label: 'Camera',
-                  onTap: () {},
+                  onTap: () => _pickImage(ImageSource.camera),
                 ),
                 const SizedBox(width: 20),
                 ScanOptionCard(
                   icon: Icons.photo_library_rounded,
                   label: 'Gallery',
-                  onTap: () {},
+                  onTap: () => _pickImage(ImageSource.gallery),
                 ),
               ],
             ),

@@ -10,8 +10,17 @@ class AuthService {
   // ─── Google Sign-In (Firebase) ──────────────────────────────
   Future<UserCredential?> signInWithGoogle() async {
     try {
+      // Sign out first to clear any cached authentication state
+      await _googleSignIn.signOut();
+
       // Trigger the Google Sign-In flow (v7 API)
-      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+      final GoogleSignInAccount? googleUser = await _googleSignIn
+          .authenticate();
+
+      // Return null if user cancels the sign-in
+      if (googleUser == null) {
+        return null;
+      }
 
       // Get the ID token from authentication
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
@@ -20,9 +29,9 @@ class AuthService {
       // Get an access token via authorization client
       String? accessToken;
       try {
-        final GoogleSignInClientAuthorization clientAuth = await googleUser
-            .authorizationClient
-            .authorizeScopes(<String>['email', 'profile']);
+        final clientAuth = await googleUser.authorizationClient.authorizeScopes(
+          <String>['email', 'profile'],
+        );
         accessToken = clientAuth.accessToken;
       } catch (_) {
         // Authorization may fail on some platforms; proceed with idToken only
@@ -52,6 +61,7 @@ class AuthService {
               .set({
                 'uid': userCredential.user!.uid,
                 'email': userCredential.user!.email ?? '',
+                'name': userCredential.user!.displayName,
                 'createdAt': DateTime.now().toIso8601String(),
                 'updatedAt': DateTime.now().toIso8601String(),
               });
@@ -60,10 +70,19 @@ class AuthService {
 
       return userCredential;
     } on GoogleSignInException catch (e) {
+      // Handle specific Google Sign-In errors
       if (e.code == GoogleSignInExceptionCode.canceled) {
-        return null; // user cancelled
+        // User cancelled the sign-in
+        return null;
+      } else {
+        // Configuration issue - likely SHA-1 fingerprint not set up
+        throw Exception(
+          'Google Sign-In configuration error. '
+          'Please ensure SHA-1 fingerprint is added to Firebase Console.\n'
+          'Error code: ${e.code}\n'
+          'Details: ${e.toString()}',
+        );
       }
-      throw Exception('Google Sign-In failed: $e');
     } catch (e) {
       throw Exception('Google Sign-In failed: $e');
     }
@@ -108,6 +127,28 @@ class AuthService {
     try {
       final UserCredential credential = await _firebaseAuth
           .signInWithEmailAndPassword(email: email, password: password);
+      
+      // Create user document in Firestore if doesn't exist (consistency with Google Sign-In)
+      if (credential.user != null) {
+        final userDoc = await _firestore
+            .collection('users')
+            .doc(credential.user!.uid)
+            .get();
+
+        if (!userDoc.exists) {
+          await _firestore
+              .collection('users')
+              .doc(credential.user!.uid)
+              .set({
+                'uid': credential.user!.uid,
+                'email': credential.user!.email ?? email,
+                'name': credential.user!.displayName,
+                'createdAt': DateTime.now().toIso8601String(),
+                'updatedAt': DateTime.now().toIso8601String(),
+              });
+        }
+      }
+      
       return credential;
     } on FirebaseAuthException catch (e) {
       throw Exception(_mapFirebaseAuthError(e.code));
