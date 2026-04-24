@@ -15,11 +15,43 @@
       },
       "oauth_client": [
         {
+          "client_id": "1003261916751-0qk8c7tla0aqbo26lqe2di3dvi2euv7u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plant_disease_detection_mobile_app",
+            "certificate_hash": "e67556a8272077d4af9ca9cfd8a00298cf5e1472"
+          }
+        },
+        {
+          "client_id": "1003261916751-33kl279ra0f7qo4sv5t3bkrcqcs7hgi7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plant_disease_detection_mobile_app",
+            "certificate_hash": "8e10207bacd195fa6736c56be2bba987140ea779"
+          }
+        },
+        {
+          "client_id": "1003261916751-94kdhgb3tvcs98kpnf6gcbh0kjnufia5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plant_disease_detection_mobile_app",
+            "certificate_hash": "a0bb8d97537d050ed79a57ef6408e20ad2d68640"
+          }
+        },
+        {
           "client_id": "1003261916751-a2luf1asidipkgh89dcgh8fle63auret.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.plant_disease_detection_mobile_app",
             "certificate_hash": "f54f9f4ce729130c5f167f7139b4b91ca289f644"
+          }
+        },
+        {
+          "client_id": "1003261916751-k516a41fmlpuqbr24hmjcc8i9v14f6c1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plant_disease_detection_mobile_app",
+            "certificate_hash": "ddb416923ae6a99f0857c959704e1c5180ac3bc9"
           }
         },
         {

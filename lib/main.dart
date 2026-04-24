@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'firebase_options.dart';
 import 'pages/login/login_page.dart';
 import 'pages/home/home_page.dart';
+import 'pages/onboarding/onboarding_page.dart';
+import 'globals.dart';
+import 'widgets/animated_chat_button.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables for Gemini API
+  await dotenv.load(fileName: "assets/env/app.env");
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -24,6 +31,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: globalNavigatorKey,
+      navigatorObservers: [globalRouteObserver],
+      builder: (context, child) {
+        return Stack(
+          children: [
+            if (child != null) child,
+            const AnimatedChatButton(),
+          ],
+        );
+      },
       title: 'ChillGuard',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -39,7 +56,8 @@ class MyApp extends StatelessWidget {
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          // If user is signed in, go to home
+          // If user is signed in, skip onboarding since they already did it 
+          // on login or signup, just go straight to HomePage.
           if (snapshot.hasData) {
             return const HomePage();
           }

@@ -8,10 +8,14 @@ class ResultPage extends StatefulWidget {
   final String imagePath;
   final List<ClassificationResult> results;
 
+  /// Full dual-model result (optional – kept for backward compat).
+  final DualModelResult? dualResult;
+
   const ResultPage({
     super.key,
     required this.imagePath,
     required this.results,
+    this.dualResult,
   });
 
   @override
@@ -237,7 +241,7 @@ class _ResultPageState extends State<ResultPage> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -253,7 +257,7 @@ class _ResultPageState extends State<ResultPage> {
                         height: 48,
                         decoration: BoxDecoration(
                           color: (isHealthy ? const Color(0xFF4CAF50) : const Color(0xFFE53935))
-                              .withOpacity(0.12),
+                              .withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Icon(
@@ -334,7 +338,7 @@ class _ResultPageState extends State<ResultPage> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -343,22 +347,24 @@ class _ResultPageState extends State<ResultPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.bar_chart_rounded, color: Color(0xFF9C27B0), size: 22),
-                      SizedBox(width: 8),
-                      Text(
-                        'All Predictions',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A2E),
+                      const Icon(Icons.bar_chart_rounded, color: Color(0xFF9C27B0), size: 22),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'All Predictions',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A1A2E),
+                          ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 14),
-                  ...widget.results.map((r) => _buildPredictionRow(r, topResult)).toList(),
+                  ...widget.results.map((r) => _buildPredictionRow(r, topResult)),
                 ],
               ),
             ),
@@ -418,7 +424,7 @@ class _InfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
