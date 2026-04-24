@@ -33,7 +33,9 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
     try {
       await _classifier.loadModel();
       // Run both models and get the dual result
-      final dualResult = await _classifier.classifyImage(File(widget.imagePath));
+      final dualResult = await _classifier.classifyImage(
+        File(widget.imagePath),
+      );
 
       if (!mounted) return;
 
@@ -42,7 +44,6 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
           builder: (_) => ResultPage(
             imagePath: widget.imagePath,
             results: dualResult.winner.results,
-            dualResult: dualResult,
           ),
         ),
       );
@@ -106,10 +107,7 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
             child: Text(
               'Make sure the leaf is clearly visible in the image for accurate detection.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: Color(0xFF6B7280),
-              ),
+              style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
             ),
           ),
           const SizedBox(height: 16),

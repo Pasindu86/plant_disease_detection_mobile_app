@@ -6,9 +6,9 @@ class ChatService {
   late final ChatSession _chat;
 
   ChatService() {
-    final apiKey = dotenv.env['GEMINI_API_KEY'];
+    var apiKey = dotenv.env['GEMINI_API_KEY'];
     if (apiKey == null || apiKey.isEmpty) {
-      throw Exception('GEMINI_API_KEY not found in .env file');
+      apiKey = 'dummy_api_key_for_testing'; // Provide a fallback so the app does not crash
     }
 
     _model = GenerativeModel(model: 'gemini-3-flash-preview', apiKey: apiKey);
@@ -16,6 +16,11 @@ class ChatService {
   }
 
   Future<String> sendMessage(String message) async {
+    final apiKey = dotenv.env['GEMINI_API_KEY'];
+    if (apiKey == null || apiKey.isEmpty || apiKey == 'dummy_api_key_for_testing') {
+      return 'Error: GEMINI_API_KEY not set in assets/env/app.env. Please add it to use the chat assistant.';
+    }
+    
     try {
       final response = await _chat.sendMessage(Content.text(message));
       return response.text ?? 'I could not understand that.';
