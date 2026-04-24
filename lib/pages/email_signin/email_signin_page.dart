@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plant_disease_detection_mobile_app/pages/home/home_page.dart';
+import 'package:plant_disease_detection_mobile_app/pages/onboarding/onboarding_page.dart';
 import 'package:plant_disease_detection_mobile_app/services/auth_service.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/auth_form_helpers.dart';
 
@@ -38,7 +38,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
+          MaterialPageRoute(builder: (_) => const OnboardingPage()),
         );
       }
     } catch (e) {
@@ -62,7 +62,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
       if (result != null && mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
+          MaterialPageRoute(builder: (_) => const OnboardingPage()),
         );
       }
     } catch (e) {

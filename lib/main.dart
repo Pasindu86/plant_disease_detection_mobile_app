@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'firebase_options.dart';
 import 'pages/login/login_page.dart';
 import 'pages/home/home_page.dart';
+import 'pages/onboarding/onboarding_page.dart';
 import 'globals.dart';
 import 'widgets/animated_chat_button.dart';
 
@@ -55,7 +56,8 @@ class MyApp extends StatelessWidget {
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          // If user is signed in, go to home
+          // If user is signed in, skip onboarding since they already did it 
+          // on login or signup, just go straight to HomePage.
           if (snapshot.hasData) {
             return const HomePage();
           }

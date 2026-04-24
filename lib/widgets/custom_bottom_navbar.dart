@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../pages/marketplace/marketplace_page.dart';
 
 class CustomBottomNavBar extends StatefulWidget {
   final VoidCallback onScanTap;
@@ -23,7 +24,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
   static const _navItems = [
     _NavItem(icon: Icons.home_rounded, label: 'Home'),
     _NavItem(icon: Icons.yard_rounded, label: 'My Garden'),
-    _NavItem(icon: Icons.task_alt_rounded, label: 'Tasks'),
+    _NavItem(icon: Icons.store_rounded, label: 'Market'), // Replaced Tasks with Market
     _NavItem(icon: Icons.people_alt_rounded, label: 'Community'),
   ];
 
@@ -205,7 +206,15 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
-        setState(() => _selectedIndex = index);
+        if (index == 2) {
+          // Market tab pressed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MarketplacePage()),
+          );
+        } else {
+          setState(() => _selectedIndex = index);
+        }
       },
       behavior: HitTestBehavior.opaque,
       child: Container(
