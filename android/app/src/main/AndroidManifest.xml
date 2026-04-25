@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <application
-        android:label="plant_disease_detection_mobile_app"
+        android:label="Plant Care"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
