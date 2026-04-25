@@ -6,7 +6,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'firebase_options.dart';
 import 'pages/login/login_page.dart';
 import 'pages/home/home_page.dart';
-import 'pages/onboarding/onboarding_page.dart';
 import 'globals.dart';
 import 'widgets/animated_chat_button.dart';
 import 'widgets/system_theme_wrapper.dart';

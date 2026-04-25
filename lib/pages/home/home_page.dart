@@ -4,6 +4,7 @@ import 'package:plant_disease_detection_mobile_app/pages/scan/scan_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/profile/user_profile_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/chat/chat_page.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/custom_bottom_navbar.dart';
+import 'package:plant_disease_detection_mobile_app/widgets/weather_quick_action_card.dart';
 import 'package:plant_disease_detection_mobile_app/globals.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,7 +15,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  
   @override
   void initState() {
     super.initState();
@@ -43,11 +43,12 @@ class _HomePageState extends State<HomePage> {
     return 'Farmer';
   }
 
-  Widget _buildQuickActionCard(
-      {required String title,
-      required String subtitle,
-      required IconData icon,
-      required Color bgColor}) {
+  Widget _buildQuickActionCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color bgColor,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: bgColor,
@@ -75,13 +76,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.black54,
-            ),
-          ),
+          Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.black54)),
         ],
       ),
     );
@@ -110,7 +105,9 @@ class _HomePageState extends State<HomePage> {
                       // Profile Routing
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const UserProfilePage()),
+                        MaterialPageRoute(
+                          builder: (_) => const UserProfilePage(),
+                        ),
                       );
                     },
                     child: const Icon(Icons.menu, color: Colors.black87),
@@ -153,12 +150,15 @@ class _HomePageState extends State<HomePage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                     ),
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 32),
 
               // Quick Actions Title
@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.black87,
                 ),
               ),
-              
+
               const SizedBox(height: 16),
 
               // Quick Actions Grid
@@ -184,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                       Navigator.push(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const ScanPage()),
                       );
@@ -216,12 +216,7 @@ class _HomePageState extends State<HomePage> {
                       bgColor: const Color(0xFFFFF5EE), // Light Peach
                     ),
                   ),
-                  _buildQuickActionCard(
-                    title: 'Weather',
-                    subtitle: 'Forecast',
-                    icon: Icons.wb_sunny_outlined,
-                    bgColor: const Color(0xFFFDF5FF), // Light Purple
-                  ),
+                  const WeatherQuickActionCard(),
                 ],
               ),
 
@@ -251,7 +246,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 8),
 
               // Disease Alerts Empty State
@@ -265,7 +260,11 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: const Column(
                   children: [
-                    Icon(Icons.notifications_off_outlined, color: Colors.grey, size: 40),
+                    Icon(
+                      Icons.notifications_off_outlined,
+                      color: Colors.grey,
+                      size: 40,
+                    ),
                     SizedBox(height: 8),
                     Text(
                       'No active alerts at the moment.',
@@ -316,7 +315,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 80), // Padding for bottom nav bar
             ],
           ),
