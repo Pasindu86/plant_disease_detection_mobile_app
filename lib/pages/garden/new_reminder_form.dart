@@ -62,7 +62,7 @@ class _NewReminderFormState extends State<NewReminderForm> {
         parts = dateString.split('-').map(int.parse).toList();
         if (parts.length == 3) {
           // Check if format is dd-mm-yyyy or yyyy-mm-dd
-          if (parts[0] > 30) {
+          if (parts[0] > 31) {
             // yyyy-mm-dd
             return DateTime(parts[0], parts[1], parts[2]);
           } else {
@@ -211,7 +211,7 @@ class _NewReminderFormState extends State<NewReminderForm> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(
                         color: Color(0xFF4CAF50),
-                        width: 5,
+                        width: 2,
                       ),
                     ),
                   ),

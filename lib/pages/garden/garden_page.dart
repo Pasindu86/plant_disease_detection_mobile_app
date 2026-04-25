@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:plant_disease_detection_mobile_app/services/reminder_service.dart';
 import 'package:plant_disease_detection_mobile_app/models/reminder_model.dart';
 import 'package:plant_disease_detection_mobile_app/pages/garden/new_reminder_form.dart';
@@ -112,10 +113,10 @@ class _GardenPageState extends State<GardenPage> {
                           ),
                         ],
                       ),
-                      Icon(
-                        Icons.local_florist,
-                        size: 48,
-                        color: const Color(0xFF4CAF50).withOpacity(0.6),
+                      FaIcon(
+                        FontAwesomeIcons.leaf,
+                        size: 30,
+                        color: Color(0xFF4CAF50),
                       ),
                     ],
                   ),
