@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:plant_disease_detection_mobile_app/pages/scan/scan_page.dart';
@@ -6,6 +7,10 @@ import 'package:plant_disease_detection_mobile_app/pages/chat/chat_page.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/custom_bottom_navbar.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/weather_quick_action_card.dart';
 import 'package:plant_disease_detection_mobile_app/globals.dart';
+import 'package:plant_disease_detection_mobile_app/services/disease_detection_service.dart';
+import 'package:plant_disease_detection_mobile_app/services/plant_classifier_service.dart';
+import 'package:plant_disease_detection_mobile_app/pages/scan/scan_history_page.dart';
+import 'package:plant_disease_detection_mobile_app/pages/scan/result_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -235,7 +240,14 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ScanHistoryPage(),
+                        ),
+                      );
+                    },
                     child: const Text(
                       'View All',
                       style: TextStyle(
@@ -249,29 +261,179 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 8),
 
-              // Disease Alerts Empty State
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                child: const Column(
-                  children: [
-                    Icon(
-                      Icons.notifications_off_outlined,
-                      color: Colors.grey,
-                      size: 40,
+              // Disease Alerts Stream
+              StreamBuilder<List<Map<String, dynamic>>>(
+                stream: DiseaseDetectionService().getUserDetections(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final detections = snapshot.data ?? [];
+
+                  if (detections.isEmpty) {
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: const Column(
+                        children: [
+                          Icon(
+                            Icons.notifications_off_outlined,
+                            color: Colors.grey,
+                            size: 40,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'No active alerts at the moment.',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Take only the last 5 records
+                  final recentDetections = detections.take(5).toList();
+
+                  return SizedBox(
+                    height: 180, // Set height for horizontally scrollable cards
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: recentDetections.length,
+                      itemBuilder: (context, index) {
+                        final detection = recentDetections[index];
+                        final diseaseName =
+                            detection['diseaseName'] ?? 'Unknown';
+                        final confidence =
+                            (detection['confidence'] as num?)?.toDouble() ??
+                            0.0;
+                        final isHealthy = detection['isHealthy'] == true;
+                        final imagePath = detection['imagePath'] as String?;
+
+                        Widget imageWidget = Container(
+                          color: isHealthy
+                              ? const Color(0xFFE5F9E9)
+                              : const Color(0xFFFFEBEE),
+                          child: Center(
+                            child: Icon(
+                              isHealthy ? Icons.check_circle : Icons.warning,
+                              color: isHealthy
+                                  ? const Color(0xFF1EAC50)
+                                  : Colors.red,
+                              size: 40,
+                            ),
+                          ),
+                        );
+
+                        if (imagePath != null && imagePath.isNotEmpty) {
+                          imageWidget = Image.file(
+                            File(imagePath),
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            errorBuilder: (context, error, stackTrace) =>
+                                imageWidget,
+                          );
+                        }
+
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ResultPage(
+                                  imagePath: imagePath ?? '',
+                                  results: [
+                                    ClassificationResult(
+                                      label: diseaseName,
+                                      confidence: confidence,
+                                    ),
+                                  ],
+                                  isHistory: true,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 140,
+                            margin: const EdgeInsets.only(right: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Image section
+                                  Expanded(flex: 3, child: imageWidget),
+                                  // Details section
+                                  Expanded(
+                                    flex: 2,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            diseaseName,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                isHealthy
+                                                    ? Icons.check_circle
+                                                    : Icons.warning,
+                                                color: isHealthy
+                                                    ? const Color(0xFF1EAC50)
+                                                    : Colors.red,
+                                                size: 12,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                '${(confidence * 100).toStringAsFixed(0)}% Match',
+                                                style: TextStyle(
+                                                  color: Colors.grey.shade600,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'No active alerts at the moment.',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
 
               const SizedBox(height: 32),
