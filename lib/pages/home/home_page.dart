@@ -5,6 +5,7 @@ import 'package:plant_disease_detection_mobile_app/pages/scan/scan_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/profile/user_profile_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/chat/chat_page.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/custom_bottom_navbar.dart';
+import 'package:plant_disease_detection_mobile_app/widgets/weather_quick_action_card.dart';
 import 'package:plant_disease_detection_mobile_app/globals.dart';
 import 'package:plant_disease_detection_mobile_app/services/disease_detection_service.dart';
 import 'package:plant_disease_detection_mobile_app/services/plant_classifier_service.dart';
@@ -220,12 +221,7 @@ class _HomePageState extends State<HomePage> {
                       bgColor: const Color(0xFFFFF5EE), // Light Peach
                     ),
                   ),
-                  _buildQuickActionCard(
-                    title: 'Weather',
-                    subtitle: 'Forecast',
-                    icon: Icons.wb_sunny_outlined,
-                    bgColor: const Color(0xFFFDF5FF), // Light Purple
-                  ),
+                  const WeatherQuickActionCard(),
                 ],
               ),
 
