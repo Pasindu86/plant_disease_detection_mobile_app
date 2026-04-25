@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../pages/marketplace/marketplace_page.dart';
+import '../pages/garden/garden_page.dart' as plant_garden;
 
 class CustomBottomNavBar extends StatefulWidget {
   final VoidCallback onScanTap;
@@ -24,7 +25,10 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
   static const _navItems = [
     _NavItem(icon: Icons.home_rounded, label: 'Home'),
     _NavItem(icon: Icons.yard_rounded, label: 'My Garden'),
-    _NavItem(icon: Icons.store_rounded, label: 'Market'), // Replaced Tasks with Market
+    _NavItem(
+      icon: Icons.store_rounded,
+      label: 'Market',
+    ), // Replaced Tasks with Market
     _NavItem(icon: Icons.people_alt_rounded, label: 'Community'),
   ];
 
@@ -114,20 +118,14 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                   Expanded(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildNavItem(0),
-                        _buildNavItem(1),
-                      ],
+                      children: [_buildNavItem(0), _buildNavItem(1)],
                     ),
                   ),
                   const SizedBox(width: 68),
                   Expanded(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildNavItem(2),
-                        _buildNavItem(3),
-                      ],
+                      children: [_buildNavItem(2), _buildNavItem(3)],
                     ),
                   ),
                 ],
@@ -148,7 +146,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: const Color(0xFF4CAF50).withOpacity(0.12 * (1 - value)),
+                      color: const Color(
+                        0xFF4CAF50,
+                      ).withOpacity(0.12 * (1 - value)),
                       width: 1.5,
                     ),
                   ),
@@ -178,7 +178,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                         border: Border.all(color: Colors.white, width: 4),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF4CAF50).withOpacity(_glowAnimation.value),
+                            color: const Color(
+                              0xFF4CAF50,
+                            ).withOpacity(_glowAnimation.value),
                             blurRadius: 20,
                             offset: const Offset(0, 5),
                           ),
@@ -206,7 +208,13 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
-        if (index == 2) {
+        if (index == 1) {
+          // My Garden tab pressed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const plant_garden.GardenPage()),
+          );
+        } else if (index == 2) {
           // Market tab pressed
           Navigator.push(
             context,
@@ -226,7 +234,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
             Icon(
               item.icon,
               size: 22,
-              color: isSelected ? const Color(0xFF4CAF50) : const Color(0xFFB0BEC5),
+              color: isSelected
+                  ? const Color(0xFF4CAF50)
+                  : const Color(0xFFB0BEC5),
             ),
             const SizedBox(height: 2),
             Text(
@@ -236,7 +246,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? const Color(0xFF4CAF50) : const Color(0xFFB0BEC5),
+                color: isSelected
+                    ? const Color(0xFF4CAF50)
+                    : const Color(0xFFB0BEC5),
               ),
             ),
           ],
