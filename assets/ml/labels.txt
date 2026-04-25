@@ -1,6 +1,6 @@
-Bacterial Spot
-Cercospora Leaf Spot
-Curl Virus
-Healthy Leaf
-Nutrition Deficiency
-White spot
+0 Curl Virus
+1 Cercospora Leaf Spot
+2 Nutrition Deficiency
+3 White Spot
+4 Healthy Leaves
+5 Bacterial Spot

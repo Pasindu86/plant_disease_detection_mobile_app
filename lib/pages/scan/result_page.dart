@@ -7,6 +7,7 @@ import 'package:plant_disease_detection_mobile_app/services/disease_detection_se
 class ResultPage extends StatefulWidget {
   final String imagePath;
   final List<ClassificationResult> results;
+  final bool isHistory;
 
   /// Full dual-model result (optional – kept for backward compat).
   final DualModelResult? dualResult;
@@ -16,6 +17,7 @@ class ResultPage extends StatefulWidget {
     required this.imagePath,
     required this.results,
     this.dualResult,
+    this.isHistory = false,
   });
 
   @override
@@ -28,7 +30,9 @@ class _ResultPageState extends State<ResultPage> {
   @override
   void initState() {
     super.initState();
-    _saveDetectionToFirestore();
+    if (!widget.isHistory) {
+      _saveDetectionToFirestore();
+    }
   }
 
   Future<void> _saveDetectionToFirestore() async {
