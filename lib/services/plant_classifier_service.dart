@@ -66,8 +66,8 @@ class DualModelResult {
 /// single, more accurate final prediction.
 class PlantClassifierService {
   // ── Model 1 (original) ──────────────────────────────────────────────────
-  static const String _model1Path  = 'lib/models/model.tflite';
-  static const String _labels1Path = 'lib/models/labels.txt';
+  static const String _model1Path  = 'assets/ml/model.tflite';
+  static const String _labels1Path = 'assets/ml/labels.txt';
 
   // Model 2 (train) usually trained via TensorFlow Keras flow_from_directory
   // uses alphabetical sorting for its class indices, which differs from labels.txt.
@@ -80,7 +80,7 @@ class PlantClassifierService {
     "White Spot",
   ];
 
-  static const String _model2Path  = 'lib/models/train.tflite';
+  static const String _model2Path  = 'assets/ml/train.tflite';
   // We no longer read labels for Model 2 from labels.txt to avoid the alphabetical mismatch.
 
   // ── Input size for models ────────────────────────────────────────────────
