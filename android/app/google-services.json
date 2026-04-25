@@ -47,6 +47,14 @@
           }
         },
         {
+          "client_id": "1003261916751-hjqoafai04s7hqnkms3k7ucj599esnrk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plant_disease_detection_mobile_app",
+            "certificate_hash": "264b80b2502b3a7f2e707a256b67174c5938bc96"
+          }
+        },
+        {
           "client_id": "1003261916751-k516a41fmlpuqbr24hmjcc8i9v14f6c1.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -9,6 +9,7 @@ import 'pages/home/home_page.dart';
 import 'pages/onboarding/onboarding_page.dart';
 import 'globals.dart';
 import 'widgets/animated_chat_button.dart';
+import 'widgets/system_theme_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,11 +35,10 @@ class MyApp extends StatelessWidget {
       navigatorKey: globalNavigatorKey,
       navigatorObservers: [globalRouteObserver],
       builder: (context, child) {
-        return Stack(
-          children: [
-            if (child != null) child,
-            const AnimatedChatButton(),
-          ],
+        return SystemThemeWrapper(
+          child: Stack(
+            children: [if (child != null) child, const AnimatedChatButton()],
+          ),
         );
       },
       title: 'ChillGuard',
@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          // If user is signed in, skip onboarding since they already did it 
+          // If user is signed in, skip onboarding since they already did it
           // on login or signup, just go straight to HomePage.
           if (snapshot.hasData) {
             return const HomePage();
