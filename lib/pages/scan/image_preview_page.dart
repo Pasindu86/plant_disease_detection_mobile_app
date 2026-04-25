@@ -95,6 +95,19 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
                         File(widget.imagePath),
                         fit: BoxFit.cover,
                         width: double.infinity,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: double.infinity,
+                          color: Colors.grey[300],
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.broken_image, size: 64, color: Colors.grey),
+                              SizedBox(height: 16),
+                              Text('Image file is missing or deleted.', style: TextStyle(color: Colors.grey)),
+                              Text('Please go back and select a new image.', style: TextStyle(color: Colors.grey)),
+                            ],
+                          ),
+                        ),
                       )
                     : const Center(child: Text('No image to display')),
               ),
