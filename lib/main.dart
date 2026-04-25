@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
           ),
         );
       },
-      title: 'ChillGuard',
+      title: 'Plant Care',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorSchemeSeed: const Color(0xFF4CAF50),
