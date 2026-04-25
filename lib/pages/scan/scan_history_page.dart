@@ -122,7 +122,7 @@ class ScanHistoryPage extends StatelessWidget {
                     '${detectedAt.year}-${detectedAt.month.toString().padLeft(2, '0')}-${detectedAt.day.toString().padLeft(2, '0')} ${detectedAt.hour.toString().padLeft(2, '0')}:${detectedAt.minute.toString().padLeft(2, '0')}';
               }
 
-              Widget imageSection = Container(
+              final Widget placeholderIcon = Container(
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
@@ -138,16 +138,27 @@ class ScanHistoryPage extends StatelessWidget {
                 ),
               );
 
+              Widget imageSection = placeholderIcon;
+
               if (imagePath != null && imagePath.isNotEmpty) {
+                final isNetworkImage = imagePath.startsWith('http');
                 imageSection = ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: Image.file(
-                    File(imagePath),
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => imageSection,
-                  ),
+                  child: isNetworkImage
+                      ? Image.network(
+                          imagePath,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => placeholderIcon,
+                        )
+                      : Image.file(
+                          File(imagePath),
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => placeholderIcon,
+                        ),
                 );
               }
 
