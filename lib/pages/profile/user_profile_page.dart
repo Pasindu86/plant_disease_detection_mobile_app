@@ -4,6 +4,7 @@ import '../../models/user_model.dart';
 import '../../services/user_service.dart';
 import '../../services/auth_service.dart';
 import '../login/login_page.dart';
+import '../scan/scan_history_page.dart';
 import 'widgets/section_title.dart';
 import 'widgets/profile_input_decoration.dart';
 import 'widgets/profile_utils.dart';
@@ -249,7 +250,39 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 16),
+
+                    // Scan History Link
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.history,
+                        color: Color(0xFF4CAF50),
+                      ),
+                      title: const Text(
+                        'My Scan History',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      trailing: const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ScanHistoryPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(),
+
+                    const SizedBox(height: 16),
 
                     // Save/Cancel Buttons (only show when editing)
                     if (_isEditing)
