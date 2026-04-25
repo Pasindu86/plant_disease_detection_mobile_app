@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'dart:convert';
 import '../../models/user_model.dart';
 import '../../services/user_service.dart';
 import '../../services/auth_service.dart';
@@ -19,6 +22,7 @@ class UserProfilePage extends StatefulWidget {
 class _UserProfilePageState extends State<UserProfilePage> {
   final UserService _userService = UserService();
   final AuthService _authService = AuthService();
+  final ImagePicker _imagePicker = ImagePicker();
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
@@ -26,7 +30,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   bool _isLoading = false;
   bool _isEditing = false;
+  bool _isUploadingPhoto = false;
   UserModel? _userData;
+  File? _selectedImage;
 
   @override
   void initState() {
@@ -98,6 +104,116 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
   }
 
+  Future<void> _pickProfileImage() async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxWidth: 1000,
+        maxHeight: 1000,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+        await _uploadProfilePhoto();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking image: ${e.toString()}'),
+            backgroundColor: Colors.red.shade400,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _uploadProfilePhoto() async {
+    if (_selectedImage == null) return;
+
+    setState(() => _isUploadingPhoto = true);
+    try {
+      await _userService.uploadProfilePhoto(_selectedImage!);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile photo uploaded successfully!'),
+            backgroundColor: Color(0xFF4CAF50),
+          ),
+        );
+        await _loadUserData();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error uploading photo: ${e.toString()}'),
+            backgroundColor: Colors.red.shade400,
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isUploadingPhoto = false;
+        _selectedImage = null;
+      });
+    }
+  }
+
+  Future<void> _deleteProfilePhoto() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Profile Photo'),
+        content: const Text(
+          'Are you sure you want to delete your profile photo?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      setState(() => _isUploadingPhoto = true);
+      try {
+        await _userService.deleteProfilePhoto();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile photo deleted successfully!'),
+              backgroundColor: Color(0xFF4CAF50),
+            ),
+          );
+          await _loadUserData();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting photo: ${e.toString()}'),
+              backgroundColor: Colors.red.shade400,
+            ),
+          );
+        }
+      } finally {
+        setState(() => _isUploadingPhoto = false);
+      }
+    }
+  }
+
   Future<void> _handleSignOut() async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -163,19 +279,83 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Profile Avatar
-                    CircleAvatar(
-                      radius: 60,
-                      backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
-                      child: Text(
-                        getInitials(_nameController.text),
-                        style: const TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF4CAF50),
+                    // Profile Avatar with Upload/Delete options
+                    Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFF4CAF50),
+                              width: 2,
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 60,
+                            backgroundColor: const Color(
+                              0xFF4CAF50,
+                            ).withOpacity(0.1),
+                            backgroundImage: _userData?.profilePhoto != null
+                                ? MemoryImage(
+                                    base64Decode(_userData!.profilePhoto!),
+                                  )
+                                : null,
+                            child: _userData?.profilePhoto == null
+                                ? Text(
+                                    getInitials(_nameController.text),
+                                    style: const TextStyle(
+                                      fontSize: 40,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF4CAF50),
+                                    ),
+                                  )
+                                : null,
+                          ),
+                        ),
+                        if (_isEditing)
+                          GestureDetector(
+                            onTap: _isUploadingPhoto ? null : _pickProfileImage,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF4CAF50),
+                                shape: BoxShape.circle,
+                              ),
+                              child: _isUploadingPhoto
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Delete photo button (if photo exists and editing)
+                    if (_isEditing && _userData?.profilePhoto != null)
+                      TextButton.icon(
+                        onPressed: _isUploadingPhoto
+                            ? null
+                            : _deleteProfilePhoto,
+                        icon: const Icon(Icons.delete_outline),
+                        label: const Text('Delete Photo'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
                         ),
                       ),
-                    ),
                     const SizedBox(height: 24),
 
                     // Email (Read-only)

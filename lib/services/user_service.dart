@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
+import 'dart:convert';
 import '../models/user_model.dart';
 
 class UserService {
@@ -66,6 +68,48 @@ class UserService {
           .set(updateData, SetOptions(merge: true));
     } catch (e) {
       throw Exception('Failed to update profile: $e');
+    }
+  }
+
+  // Upload user profile photo to Firestore as base64
+  Future<String> uploadProfilePhoto(File imageFile) async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('No user logged in');
+      }
+
+      // Read the image file and convert to base64
+      final imageBytes = await imageFile.readAsBytes();
+      final base64Image = base64Encode(imageBytes);
+
+      // Save to Firestore
+      await _firestore.collection('users').doc(currentUser.uid).set({
+        'profilePhoto': base64Image,
+        'updatedAt': DateTime.now().toIso8601String(),
+      }, SetOptions(merge: true));
+
+      return base64Image;
+    } catch (e) {
+      throw Exception('Failed to upload profile photo: $e');
+    }
+  }
+
+  // Delete user profile photo
+  Future<void> deleteProfilePhoto() async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('No user logged in');
+      }
+
+      // Update Firestore to remove the photo
+      await _firestore.collection('users').doc(currentUser.uid).set({
+        'profilePhoto': null,
+        'updatedAt': DateTime.now().toIso8601String(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      throw Exception('Failed to delete profile photo: $e');
     }
   }
 
