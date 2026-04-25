@@ -16,124 +16,155 @@ class _GardenPageState extends State<GardenPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'My Garden',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: _buildGardenContent(),
-    );
-  }
-
-  Widget _buildGardenContent() {
     return StreamBuilder<List<ReminderModel>>(
       stream: _reminderService.getUserReminders(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+        int activeCount = 0;
+        List<ReminderModel> activeReminders = [];
+
+        if (snapshot.hasData) {
+          final reminders = snapshot.data ?? [];
+          activeReminders = reminders.where((r) => r.isActive).toList();
+          activeCount = activeReminders.length;
+        }
+
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            title: const Text(
+              'My Garden',
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.error_outline,
-                  size: 48,
-                  color: Color(0xFFE53935),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Error: ${snapshot.error}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Color(0xFF6B7280)),
-                ),
-              ],
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black87),
+              onPressed: () => Navigator.pop(context),
             ),
-          );
-        }
-
-        final reminders = snapshot.data ?? [];
-        final activeReminders = reminders.where((r) => r.isActive).toList();
-
-        if (activeReminders.isEmpty) {
-          return _buildEmptyState(context);
-        }
-
-        return Stack(
-          children: [
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Reminders Count Header
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFF4CAF50).withOpacity(0.3),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.notifications_outlined,
+                      color: Color(0xFF4CAF50),
+                      size: 20,
                     ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Active Reminders',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF6B7280),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${activeReminders.length}',
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF4CAF50),
-                            ),
-                          ),
-                        ],
-                      ),
-                      FaIcon(
-                        FontAwesomeIcons.leaf,
-                        size: 30,
+                    const SizedBox(width: 6),
+                    Text(
+                      '$activeCount',
+                      style: const TextStyle(
                         color: Color(0xFF4CAF50),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          body: _buildGardenContent(snapshot, activeReminders),
+        );
+      },
+    );
+  }
+
+  Widget _buildGardenContent(
+    AsyncSnapshot<List<ReminderModel>> snapshot,
+    List<ReminderModel> activeReminders,
+  ) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+        ),
+      );
+    }
+
+    if (snapshot.hasError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Color(0xFFE53935)),
+            const SizedBox(height: 16),
+            Text(
+              'Error: ${snapshot.error}',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Color(0xFF6B7280)),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (activeReminders.isEmpty) {
+      return _buildEmptyState(context);
+    }
+
+    return Stack(
+      children: [
+        ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Reminders Count Header
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4CAF50).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF4CAF50).withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Active Reminders',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${activeReminders.length}',
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4CAF50),
+                        ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 20),
-
-                // Reminders List
-                ...activeReminders.map((reminder) {
-                  return _buildReminderCard(context, reminder);
-                }).toList(),
-                const SizedBox(height: 100), // Space for FAB
-              ],
+                  FaIcon(
+                    FontAwesomeIcons.leaf,
+                    size: 30,
+                    color: Color(0xFF4CAF50),
+                  ),
+                ],
+              ),
             ),
-            Positioned(bottom: 20, right: 16, child: _buildFAB(context)),
+            const SizedBox(height: 20),
+
+            // Reminders List
+            ...activeReminders.map((reminder) {
+              return _buildReminderCard(context, reminder);
+            }).toList(),
+            const SizedBox(height: 100), // Space for FAB
           ],
-        );
-      },
+        ),
+        Positioned(bottom: 20, right: 16, child: _buildFAB(context)),
+      ],
     );
   }
 
