@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../services/disease_detection_service.dart';
+import '../../services/plant_classifier_service.dart';
+import 'result_page.dart';
 
 class ScanHistoryPage extends StatelessWidget {
   const ScanHistoryPage({super.key});
@@ -57,6 +60,7 @@ class ScanHistoryPage extends StatelessWidget {
                   (detection['confidence'] as num?)?.toDouble() ?? 0.0;
               final isHealthy = detection['isHealthy'] == true;
               final detectedAtStr = detection['detectedAt'] as String?;
+              final imagePath = detection['imagePath'] as String?;
 
               DateTime? detectedAt;
               if (detectedAtStr != null) {
@@ -70,6 +74,39 @@ class ScanHistoryPage extends StatelessWidget {
                     '${detectedAt.year}-${detectedAt.month.toString().padLeft(2, '0')}-${detectedAt.day.toString().padLeft(2, '0')} ${detectedAt.hour.toString().padLeft(2, '0')}:${detectedAt.minute.toString().padLeft(2, '0')}';
               }
 
+              Widget leadingIcon = CircleAvatar(
+                backgroundColor: isHealthy
+                    ? const Color(0xFFE5F9E9)
+                    : const Color(0xFFFFEBEE),
+                radius: 28,
+                child: Icon(
+                  isHealthy ? Icons.check_circle : Icons.warning,
+                  color: isHealthy ? const Color(0xFF1EAC50) : Colors.red,
+                  size: 28,
+                ),
+              );
+
+              Widget leadingWidget = leadingIcon;
+              if (imagePath != null && imagePath.isNotEmpty) {
+                // Determine if we should attempt to load this.
+                // Assuming it's a local file path as saved initially.
+                leadingWidget = ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(color: Colors.grey.shade200),
+                    child: Image.file(
+                      File(imagePath),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return leadingIcon; // Fallback if image file is deleted or lost
+                      },
+                    ),
+                  ),
+                );
+              }
+
               return Card(
                 elevation: 2,
                 margin: const EdgeInsets.only(bottom: 12),
@@ -77,18 +114,27 @@ class ScanHistoryPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
+                  onTap: () {
+                    // Navigate to the actual scan result page using the history item's data
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ResultPage(
+                          imagePath: imagePath ?? '',
+                          results: [
+                            ClassificationResult(
+                              label: diseaseName,
+                              confidence: confidence,
+                            ),
+                          ],
+                          isHistory:
+                              true, // Prevents saving the duplicate to history again
+                        ),
+                      ),
+                    );
+                  },
                   contentPadding: const EdgeInsets.all(16),
-                  leading: CircleAvatar(
-                    backgroundColor: isHealthy
-                        ? const Color(0xFFE5F9E9)
-                        : const Color(0xFFFFEBEE),
-                    radius: 24,
-                    child: Icon(
-                      isHealthy ? Icons.check_circle : Icons.warning,
-                      color: isHealthy ? const Color(0xFF1EAC50) : Colors.red,
-                      size: 28,
-                    ),
-                  ),
+                  leading: leadingWidget,
                   title: Text(
                     diseaseName,
                     style: const TextStyle(
