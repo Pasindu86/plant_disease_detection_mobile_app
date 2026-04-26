@@ -31,6 +31,14 @@
           }
         },
         {
+          "client_id": "1003261916751-923cnrdmqu5mejg31hrn3qn1m77bi531.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plant_disease_detection_mobile_app",
+            "certificate_hash": "5d377050198e60d079e446badf9591d782e1f5cd"
+          }
+        },
+        {
           "client_id": "1003261916751-94kdhgb3tvcs98kpnf6gcbh0kjnufia5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -76,6 +84,14 @@
           "android_info": {
             "package_name": "com.example.plant_disease_detection_mobile_app",
             "certificate_hash": "03fbc4f7384295646d00ec24e25b44566ce80fbf"
+          }
+        },
+        {
+          "client_id": "1003261916751-tsatndal30hd5tsv8kjl43c3jk7el0qn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.plant_disease_detection_mobile_app",
+            "certificate_hash": "a47250ecbcbc4bf9c22370579f6e12d6a9d6262d"
           }
         },
         {
