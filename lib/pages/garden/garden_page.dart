@@ -25,11 +25,12 @@ class _GardenPageState extends State<GardenPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
+        titleSpacing: 20.0,
         title: const Text(
           'My Garden',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
-        actions: const [HeaderActionButtons(), SizedBox(width: 16)],
+        actions: const [HeaderActionButtons(), SizedBox(width: 20)],
       ),
       body: _buildGardenContent(),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),

@@ -18,28 +18,22 @@ class MarketplacePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       extendBody: true,
+      appBar: AppBar(
+        titleSpacing: 20.0,
+        title: const Text('Marketplace', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        iconTheme: const IconThemeData(color: Colors.black87),
+        actions: const [
+          HeaderActionButtons(),
+          SizedBox(width: 20),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Custom Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-              child: Row(
-                children: [
-                  const Text(
-                    'Marketplace',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const Spacer(),
-                  const HeaderActionButtons(),
-                ],
-              ),
-            ),
             Expanded(
               child: StreamBuilder<List<MarketItem>>(
                 stream: marketplaceService.getItems(),
