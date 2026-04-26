@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../services/community_service.dart';
 import '../../models/post_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../widgets/custom_bottom_navbar.dart';
+import '../../widgets/header_action_buttons.dart';
 import 'create_post_page.dart';
 
 class CommunityPage extends StatefulWidget {
@@ -26,12 +28,16 @@ class _CommunityPageState extends State<CommunityPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
+      extendBody: true,
       appBar: AppBar(
         title: const Text('Community', style: TextStyle(color: Colors.black87)),
         backgroundColor: Colors.white,
         elevation: 0,
+        automaticallyImplyLeading: false,
         iconTheme: const IconThemeData(color: Colors.black87),
         actions: [
+          const HeaderActionButtons(),
+          const SizedBox(width: 4),
           IconButton(
             icon: const Icon(Icons.add_box_rounded),
             color: const Color(0xFF4CAF50),
@@ -80,6 +86,7 @@ class _CommunityPageState extends State<CommunityPage> {
           );
         },
       ),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 4),
     );
   }
 }
