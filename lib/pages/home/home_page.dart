@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:plant_disease_detection_mobile_app/pages/scan/scan_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/profile/user_profile_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/chat/chat_page.dart';
+import 'package:plant_disease_detection_mobile_app/widgets/header_action_buttons.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/custom_bottom_navbar.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/weather_quick_action_card.dart';
 import 'package:plant_disease_detection_mobile_app/globals.dart';
@@ -139,57 +140,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                   const Spacer(),
-                  // AI Assistant button
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ChatPage()),
-                      );
-                    },
-                    icon: const Icon(Icons.forum_rounded, size: 14),
-                    label: const Text('Ask', style: TextStyle(fontSize: 12)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1EAC50),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  // Scan button
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ScanPage()),
-                      );
-                    },
-                    icon: const Icon(Icons.document_scanner_rounded, size: 14),
-                    label: const Text('Scan', style: TextStyle(fontSize: 12)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1EAC50),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                    ),
-                  ),
+                  const HeaderActionButtons(),
                 ],
               ),
 

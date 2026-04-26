@@ -4,6 +4,7 @@ import '../../models/market_item.dart';
 import '../../services/marketplace_service.dart';
 import '../../widgets/market_item_card.dart';
 import '../../widgets/custom_bottom_navbar.dart';
+import '../../widgets/header_action_buttons.dart';
 import 'add_item_page.dart';
 
 class MarketplacePage extends StatelessWidget {
@@ -26,8 +27,6 @@ class MarketplacePage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Row(
                 children: [
-                  const SizedBox(width: 8),
-                  const SizedBox(width: 16),
                   const Text(
                     'Marketplace',
                     style: TextStyle(
@@ -36,6 +35,8 @@ class MarketplacePage extends StatelessWidget {
                       color: Colors.black87,
                     ),
                   ),
+                  const Spacer(),
+                  const HeaderActionButtons(),
                 ],
               ),
             ),

@@ -3,6 +3,7 @@ import 'package:plant_disease_detection_mobile_app/services/reminder_service.dar
 import 'package:plant_disease_detection_mobile_app/models/reminder_model.dart';
 import 'package:plant_disease_detection_mobile_app/pages/garden/new_reminder_form.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/custom_bottom_navbar.dart';
+import 'package:plant_disease_detection_mobile_app/widgets/header_action_buttons.dart';
 
 class GardenPage extends StatefulWidget {
   const GardenPage({super.key});
@@ -27,6 +28,10 @@ class _GardenPageState extends State<GardenPage> {
           'My Garden',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
+        actions: const [
+          HeaderActionButtons(),
+          SizedBox(width: 16),
+        ],
       ),
       body: _buildGardenContent(),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
