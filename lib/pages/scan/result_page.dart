@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:plant_disease_detection_mobile_app/services/plant_classifier_service.dart';
 import 'package:plant_disease_detection_mobile_app/services/disease_detection_service.dart';
 
+import 'package:plant_disease_detection_mobile_app/services/care_treatment_service.dart';
+
 class ResultPage extends StatefulWidget {
   final String imagePath;
   final List<ClassificationResult> results;
@@ -110,16 +112,22 @@ class _ResultPageState extends State<ResultPage> {
       },
     };
 
-    return map[label] ?? {
-      'description': 'No detailed information available for this condition.',
-      'tips': '• Consult a local agricultural expert for specific guidance.',
-    };
+    return map[label] ??
+        {
+          'description':
+              'No detailed information available for this condition.',
+          'tips':
+              '• Consult a local agricultural expert for specific guidance.',
+        };
   }
 
-  Widget _buildPredictionRow(ClassificationResult r, ClassificationResult? topResult) {
+  Widget _buildPredictionRow(
+    ClassificationResult r,
+    ClassificationResult? topResult,
+  ) {
     final pct = (r.confidence * 100).toStringAsFixed(1);
     final isTop = r == topResult;
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -144,7 +152,9 @@ class _ResultPageState extends State<ResultPage> {
                 backgroundColor: Colors.grey[200],
                 valueColor: AlwaysStoppedAnimation<Color>(
                   isTop
-                      ? (r.isHealthy ? const Color(0xFF4CAF50) : const Color(0xFFE53935))
+                      ? (r.isHealthy
+                            ? const Color(0xFF4CAF50)
+                            : const Color(0xFFE53935))
                       : Colors.grey[400]!,
                 ),
               ),
@@ -172,7 +182,8 @@ class _ResultPageState extends State<ResultPage> {
   Widget build(BuildContext context) {
     final topResult = widget.results.isNotEmpty ? widget.results[0] : null;
     final isHealthy = topResult?.isHealthy ?? false;
-    final confidencePercent = ((topResult?.confidence ?? 0) * 100).toStringAsFixed(1);
+    final confidencePercent = ((topResult?.confidence ?? 0) * 100)
+        .toStringAsFixed(1);
     final info = _getDiseaseInfo(topResult?.label ?? '');
 
     return Scaffold(
@@ -210,9 +221,16 @@ class _ResultPageState extends State<ResultPage> {
                               child: const Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.image_not_supported, size: 50, color: Colors.grey),
+                                  Icon(
+                                    Icons.image_not_supported,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
                                   SizedBox(height: 8),
-                                  Text('Image not available', style: TextStyle(color: Colors.grey)),
+                                  Text(
+                                    'Image not available',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
                                 ],
                               ),
                             );
@@ -231,9 +249,16 @@ class _ResultPageState extends State<ResultPage> {
                               child: const Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.image_not_supported, size: 50, color: Colors.grey),
+                                  Icon(
+                                    Icons.image_not_supported,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
                                   SizedBox(height: 8),
-                                  Text('Image not available', style: TextStyle(color: Colors.grey)),
+                                  Text(
+                                    'Image not available',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
                                 ],
                               ),
                             );
@@ -244,16 +269,23 @@ class _ResultPageState extends State<ResultPage> {
                   top: 12,
                   right: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 7,
+                    ),
                     decoration: BoxDecoration(
-                      color: isHealthy ? const Color(0xFF4CAF50) : const Color(0xFFE53935),
+                      color: isHealthy
+                          ? const Color(0xFF4CAF50)
+                          : const Color(0xFFE53935),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          isHealthy ? Icons.check_circle : Icons.warning_rounded,
+                          isHealthy
+                              ? Icons.check_circle
+                              : Icons.warning_rounded,
                           color: Colors.white,
                           size: 18,
                         ),
@@ -297,13 +329,20 @@ class _ResultPageState extends State<ResultPage> {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: (isHealthy ? const Color(0xFF4CAF50) : const Color(0xFFE53935))
-                              .withValues(alpha: 0.12),
+                          color:
+                              (isHealthy
+                                      ? const Color(0xFF4CAF50)
+                                      : const Color(0xFFE53935))
+                                  .withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Icon(
-                          isHealthy ? Icons.eco_rounded : Icons.bug_report_rounded,
-                          color: isHealthy ? const Color(0xFF4CAF50) : const Color(0xFFE53935),
+                          isHealthy
+                              ? Icons.eco_rounded
+                              : Icons.bug_report_rounded,
+                          color: isHealthy
+                              ? const Color(0xFF4CAF50)
+                              : const Color(0xFFE53935),
                           size: 26,
                         ),
                       ),
@@ -344,7 +383,9 @@ class _ResultPageState extends State<ResultPage> {
                       minHeight: 10,
                       backgroundColor: Colors.grey[200],
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        isHealthy ? const Color(0xFF4CAF50) : const Color(0xFFE53935),
+                        isHealthy
+                            ? const Color(0xFF4CAF50)
+                            : const Color(0xFFE53935),
                       ),
                     ),
                   ),
@@ -369,6 +410,69 @@ class _ResultPageState extends State<ResultPage> {
               content: info['tips'] ?? '',
               iconColor: const Color(0xFF4CAF50),
             ),
+            const SizedBox(height: 12),
+
+            // Add Care Treatment button - shown if there are care tips
+            if (!isHealthy && (info['tips']?.isNotEmpty ?? false))
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final List<String> steps = (info['tips'] ?? '')
+                        .split('\n')
+                        .map((e) => e.replaceAll('•', '').trim())
+                        .where((e) => e.isNotEmpty)
+                        .toList();
+
+                    if (steps.isNotEmpty) {
+                      try {
+                        await CareTreatmentService().saveTreatment(
+                          diseaseName: topResult?.label ?? 'Plant Treatment',
+                          tips: 'Care Treatment:\n${steps.join("\n")}',
+                        );
+
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Treatment saved to Care Treatments!',
+                              ),
+                              backgroundColor: Color(0xFF4CAF50),
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                          // Pop back to home after saving
+                          int popCount = 0;
+                          Navigator.of(context).popUntil((_) => ++popCount > 2);
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to save treatment: $e'),
+                              backgroundColor: const Color(0xFFE53935),
+                            ),
+                          );
+                        }
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.add_circle_outline_rounded),
+                  label: const Text(
+                    'Add Care Treatment',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF66BB6A),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
+                  ),
+                ),
+              ),
             const SizedBox(height: 16),
 
             // ── All predictions ──
@@ -390,7 +494,11 @@ class _ResultPageState extends State<ResultPage> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.bar_chart_rounded, color: Color(0xFF9C27B0), size: 22),
+                      const Icon(
+                        Icons.bar_chart_rounded,
+                        color: Color(0xFF9C27B0),
+                        size: 22,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -405,7 +513,9 @@ class _ResultPageState extends State<ResultPage> {
                     ],
                   ),
                   const SizedBox(height: 14),
-                  ...widget.results.map((r) => _buildPredictionRow(r, topResult)),
+                  ...widget.results.map(
+                    (r) => _buildPredictionRow(r, topResult),
+                  ),
                 ],
               ),
             ),
@@ -450,6 +560,7 @@ class _InfoCard extends StatelessWidget {
   final Color iconColor;
 
   const _InfoCard({
+    super.key,
     required this.icon,
     required this.title,
     required this.content,
@@ -478,12 +589,14 @@ class _InfoCard extends StatelessWidget {
             children: [
               Icon(icon, color: iconColor, size: 22),
               const SizedBox(width: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1A2E),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A1A2E),
+                  ),
                 ),
               ),
             ],

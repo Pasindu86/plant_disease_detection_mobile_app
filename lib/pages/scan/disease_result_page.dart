@@ -34,10 +34,7 @@ class DiseaseResultPage extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.file(
-                    File(imagePath),
-                    fit: BoxFit.cover,
-                  ),
+                  Image.file(File(imagePath), fit: BoxFit.cover),
                   // Gradient overlay
                   Container(
                     decoration: BoxDecoration(
@@ -165,6 +162,45 @@ class DiseaseResultPage extends StatelessWidget {
                         .toList(),
                   ),
                 ),
+                const SizedBox(height: 12),
+
+                // Add Care Treatment button - shown if analysis report exists
+                if (diseaseInfo.treatments.isNotEmpty)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => FractionallySizedBox(
+                            heightFactor: 0.85,
+                            child: CareTreatmentStepsSheet(
+                              treatments: diseaseInfo.treatments,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.add_circle_outline_rounded),
+                      label: const Text(
+                        'Add Care Treatment',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF66BB6A),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 2,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 16),
 
                 // Other predictions card
@@ -280,8 +316,8 @@ class DiseaseResultPage extends StatelessWidget {
     final color = confidence >= 80
         ? const Color(0xFF4CAF50)
         : confidence >= 60
-            ? Colors.orange
-            : Colors.red;
+        ? Colors.orange
+        : Colors.red;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -334,8 +370,8 @@ class DiseaseResultPage extends StatelessWidget {
             confidence >= 80
                 ? 'High confidence - Result is reliable'
                 : confidence >= 60
-                    ? 'Moderate confidence - Consider retaking photo'
-                    : 'Low confidence - Please retake with better lighting',
+                ? 'Moderate confidence - Consider retaking photo'
+                : 'Low confidence - Please retake with better lighting',
             style: TextStyle(
               fontSize: 12,
               color: color,
@@ -523,10 +559,7 @@ class DiseaseResultPage extends StatelessWidget {
           Expanded(
             child: Text(
               prediction.name,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF4A4A4A),
-              ),
+              style: const TextStyle(fontSize: 14, color: Color(0xFF4A4A4A)),
             ),
           ),
           const SizedBox(width: 8),
@@ -538,9 +571,7 @@ class DiseaseResultPage extends StatelessWidget {
                 value: prediction.confidence / 100.0,
                 minHeight: 6,
                 backgroundColor: Colors.grey.shade200,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.grey.shade400,
-                ),
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey.shade400),
               ),
             ),
           ),
@@ -554,6 +585,167 @@ class DiseaseResultPage extends StatelessWidget {
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF6B7280),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CareTreatmentStepsSheet extends StatefulWidget {
+  final List<String> treatments;
+
+  const CareTreatmentStepsSheet({super.key, required this.treatments});
+
+  @override
+  State<CareTreatmentStepsSheet> createState() =>
+      _CareTreatmentStepsSheetState();
+}
+
+class _CareTreatmentStepsSheetState extends State<CareTreatmentStepsSheet> {
+  int _currentStep = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(top: 16),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          // Drag handle
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Care & Treatment Plan',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1A1A2E),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Divider(height: 1),
+          // Stepper area
+          Expanded(
+            child: Theme(
+              // Override theme to change Stepper colors
+              data: Theme.of(context).copyWith(
+                colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: const Color(0xFF4CAF50), // Active step color
+                ),
+              ),
+              child: Stepper(
+                type: StepperType.vertical,
+                physics: const BouncingScrollPhysics(),
+                currentStep: _currentStep,
+                onStepTapped: (step) => setState(() => _currentStep = step),
+                onStepContinue: () {
+                  if (_currentStep < widget.treatments.length - 1) {
+                    setState(() => _currentStep += 1);
+                  } else {
+                    // Reached the end
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Care plan marked as active!'),
+                        backgroundColor: Color(0xFF4CAF50),
+                      ),
+                    );
+                  }
+                },
+                onStepCancel: () {
+                  if (_currentStep > 0) {
+                    setState(() => _currentStep -= 1);
+                  }
+                },
+                controlsBuilder: (context, details) {
+                  final isLastStep =
+                      _currentStep == widget.treatments.length - 1;
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: details.onStepContinue,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4CAF50),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              isLastStep ? 'Complete Plan' : 'Next Step',
+                            ),
+                          ),
+                        ),
+                        if (_currentStep > 0) ...[
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: details.onStepCancel,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFF4CAF50),
+                                side: const BorderSide(
+                                  color: Color(0xFF4CAF50),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text('Back'),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
+                steps: widget.treatments.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final treatment = entry.value;
+                  return Step(
+                    title: Text(
+                      'Step ${index + 1}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    content: Container(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        treatment,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF4A4A4A),
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                    isActive: _currentStep >= index,
+                    state: _currentStep > index
+                        ? StepState.complete
+                        : StepState.indexed,
+                  );
+                }).toList(),
               ),
             ),
           ),

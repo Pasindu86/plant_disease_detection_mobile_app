@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:plant_disease_detection_mobile_app/pages/scan/scan_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/profile/user_profile_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/chat/chat_page.dart';
-import 'package:plant_disease_detection_mobile_app/widgets/header_action_buttons.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/custom_bottom_navbar.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/weather_quick_action_card.dart';
 import 'package:plant_disease_detection_mobile_app/globals.dart';
@@ -12,6 +11,7 @@ import 'package:plant_disease_detection_mobile_app/services/disease_detection_se
 import 'package:plant_disease_detection_mobile_app/services/plant_classifier_service.dart';
 import 'package:plant_disease_detection_mobile_app/pages/scan/scan_history_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/scan/result_page.dart';
+import 'package:plant_disease_detection_mobile_app/pages/home/care_treatments_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -140,7 +140,30 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                   const Spacer(),
-                  const HeaderActionButtons(),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ScanPage()),
+                      ).then((_) {
+                        if (mounted) setState(() {});
+                      });
+                    },
+                    icon: const Icon(Icons.qr_code_scanner, size: 18),
+                    label: const Text('Scan'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1EAC50),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
                 ],
               ),
 
@@ -183,11 +206,21 @@ class _HomePageState extends State<HomePage> {
                       bgColor: const Color(0xFFE5F9E9), // Light Green
                     ),
                   ),
-                  _buildQuickActionCard(
-                    title: 'Care',
-                    subtitle: 'Treatments',
-                    icon: Icons.medical_services_outlined,
-                    bgColor: const Color(0xFFF0F5FF), // Light Blue
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CareTreatmentsPage(),
+                        ),
+                      );
+                    },
+                    child: _buildQuickActionCard(
+                      title: 'Care',
+                      subtitle: 'Treatments',
+                      icon: Icons.medical_services_outlined,
+                      bgColor: const Color(0xFFF0F5FF), // Light Blue
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -425,12 +458,54 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
 
+              const SizedBox(height: 32),
+
+              // My Plants Title Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'My Plants',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {},
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              // My Plants Empty State
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: Text(
+                    'Tap the + button to add your first plant.',
+                    style: TextStyle(color: Colors.grey[500]),
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 80), // Padding for bottom nav bar
             ],
           ),
         ),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 0),
+      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 }
