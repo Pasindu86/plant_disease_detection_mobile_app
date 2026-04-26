@@ -20,46 +20,20 @@ class HeaderActionButtons extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const ChatPage()),
             );
           },
-          icon: const Icon(Icons.forum_rounded, size: 14),
-          label: const Text('Ask', style: TextStyle(fontSize: 12)),
+          icon: const Icon(Icons.forum_rounded, size: 18),
+          label: const Text('Ask', style: TextStyle(fontSize: 14)),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1EAC50),
+            backgroundColor: const Color(0xFF4CAF50), // Updated to match app color
             foregroundColor: Colors.white,
             elevation: 0,
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(20),
             ),
             padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 8,
-            ),
-          ),
-        ),
-        const SizedBox(width: 6),
-        // Scan button
-        ElevatedButton.icon(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ScanPage()),
-            );
-          },
-          icon: const Icon(Icons.document_scanner_rounded, size: 14),
-          label: const Text('Scan', style: TextStyle(fontSize: 12)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1EAC50),
-            foregroundColor: Colors.white,
-            elevation: 0,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 8,
+              horizontal: 14,
+              vertical: 10,
             ),
           ),
         ),
