@@ -20,15 +20,24 @@ class MarketplacePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Custom Header
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-              child: Text(
-                'Marketplace',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.black87,
-                ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.arrow_back, color: Colors.black87, size: 24),
+                  ),
+                  const SizedBox(width: 16),
+                  const Text(
+                    'Marketplace',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
               ),
             ),
             Expanded(
