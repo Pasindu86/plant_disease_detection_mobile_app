@@ -31,11 +31,11 @@ class _ResultPageState extends State<ResultPage> {
   void initState() {
     super.initState();
     if (!widget.isHistory) {
-      _saveDetectionToFirestore();
+      _saveDetectionLocally();
     }
   }
 
-  Future<void> _saveDetectionToFirestore() async {
+  Future<void> _saveDetectionLocally() async {
     if (widget.results.isEmpty) return;
 
     try {

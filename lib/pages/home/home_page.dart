@@ -144,7 +144,9 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const ScanPage()),
-                      );
+                      ).then((_) {
+                        if (mounted) setState(() {});
+                      });
                     },
                     icon: const Icon(Icons.qr_code_scanner, size: 18),
                     label: const Text('Scan'),
@@ -192,7 +194,9 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const ScanPage()),
-                      );
+                      ).then((_) {
+                        if (mounted) setState(() {});
+                      });
                     },
                     child: _buildQuickActionCard(
                       title: 'Identify',
@@ -246,7 +250,9 @@ class _HomePageState extends State<HomePage> {
                         MaterialPageRoute(
                           builder: (_) => const ScanHistoryPage(),
                         ),
-                      );
+                      ).then((_) {
+                        if (mounted) setState(() {});
+                      });
                     },
                     child: const Text(
                       'View All',
@@ -261,9 +267,9 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 8),
 
-              // Disease Alerts Stream
-              StreamBuilder<List<Map<String, dynamic>>>(
-                stream: DiseaseDetectionService().getUserDetections(),
+              // Disease Alerts Future
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: DiseaseDetectionService().getUserDetections(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -271,7 +277,13 @@ class _HomePageState extends State<HomePage> {
 
                   final detections = snapshot.data ?? [];
 
-                  if (detections.isEmpty) {
+                  // Filter for only unhealthy plants (diseases) and take the last 5
+                  final recentDetections = detections
+                      .where((d) => d['isHealthy'] == false)
+                      .take(5)
+                      .toList();
+
+                  if (recentDetections.isEmpty) {
                     return Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
@@ -296,9 +308,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                     );
                   }
-
-                  // Take only the last 5 records
-                  final recentDetections = detections.take(5).toList();
 
                   return SizedBox(
                     height: 180, // Set height for horizontally scrollable cards
@@ -356,7 +365,9 @@ class _HomePageState extends State<HomePage> {
                                   isHistory: true,
                                 ),
                               ),
-                            );
+                            ).then((_) {
+                              if (mounted) setState(() {});
+                            });
                           },
                           child: Container(
                             width: 140,
@@ -506,7 +517,9 @@ class _HomePageState extends State<HomePage> {
               },
               transitionDuration: const Duration(milliseconds: 400),
             ),
-          );
+          ).then((_) {
+            if (mounted) setState(() {});
+          });
         },
       ),
     );
