@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import '../pages/marketplace/marketplace_page.dart';
 import '../pages/garden/garden_page.dart' as plant_garden;
 
+import '../pages/community/community_page.dart';
+
 class CustomBottomNavBar extends StatefulWidget {
   final VoidCallback onScanTap;
 
@@ -219,6 +221,12 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const MarketplacePage()),
+          );
+        } else if (index == 3) {
+          // Community tab pressed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CommunityPage()),
           );
         } else {
           setState(() => _selectedIndex = index);
