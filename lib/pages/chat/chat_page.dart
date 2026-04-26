@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/chat_service.dart';
+import '../../widgets/custom_bottom_navbar.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -62,10 +63,7 @@ class _ChatPageState extends State<ChatPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, color: Colors.black87, size: 24),
-                  ),
+                  const SizedBox(width: 8),
                   const SizedBox(width: 16),
                   const Text(
                     'Plant Assistant',
@@ -170,6 +168,7 @@ class _ChatPageState extends State<ChatPage> {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 4),
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_disease_detection_mobile_app/services/reminder_service.dart';
 import 'package:plant_disease_detection_mobile_app/models/reminder_model.dart';
 import 'package:plant_disease_detection_mobile_app/pages/garden/new_reminder_form.dart';
+import 'package:plant_disease_detection_mobile_app/widgets/custom_bottom_navbar.dart';
 
 class GardenPage extends StatefulWidget {
   const GardenPage({super.key});
@@ -17,19 +18,18 @@ class _GardenPageState extends State<GardenPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      extendBody: true,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: const Text(
           'My Garden',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
       ),
       body: _buildGardenContent(),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
     );
   }
 

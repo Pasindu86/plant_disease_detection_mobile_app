@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../pages/home/home_page.dart';
 import '../pages/marketplace/marketplace_page.dart';
 import '../pages/garden/garden_page.dart' as plant_garden;
+import '../pages/chat/chat_page.dart';
 
-class CustomBottomNavBar extends StatefulWidget {
-  const CustomBottomNavBar({super.key});
+class CustomBottomNavBar extends StatelessWidget {
+  final int currentIndex;
 
-  @override
-  State<CustomBottomNavBar> createState() => _CustomBottomNavBarState();
-}
-
-class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
-  int _selectedIndex = 0;
+  const CustomBottomNavBar({super.key, this.currentIndex = 0});
 
   static const _navItems = [
     _NavItem(icon: Icons.home_rounded, label: 'Home'),
@@ -20,6 +17,45 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
     _NavItem(icon: Icons.store_rounded, label: 'Market'),
     _NavItem(icon: Icons.people_alt_rounded, label: 'Community'),
   ];
+
+  void _onItemTapped(BuildContext context, int index) {
+    if (index == currentIndex) return; // Already on this page
+
+    HapticFeedback.selectionClick();
+
+    Widget page;
+    switch (index) {
+      case 0:
+        page = const HomePage();
+        break;
+      case 1:
+        page = const plant_garden.GardenPage();
+        break;
+      case 2:
+        // Care page not developed yet — do nothing
+        return;
+      case 3:
+        page = const MarketplacePage();
+        break;
+      case 4:
+        page = const ChatPage();
+        break;
+      default:
+        return;
+    }
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => page,
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +91,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: List.generate(
                   _navItems.length,
-                  (index) => _buildNavItem(index),
+                  (index) => _buildNavItem(context, index),
                 ),
               ),
             ),
@@ -65,28 +101,11 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
     );
   }
 
-  Widget _buildNavItem(int index) {
+  Widget _buildNavItem(BuildContext context, int index) {
     final item = _navItems[index];
-    final isSelected = _selectedIndex == index;
+    final isSelected = currentIndex == index;
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        if (index == 1) {
-          // My Garden tab pressed
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const plant_garden.GardenPage()),
-          );
-        } else if (index == 3) {
-          // Market tab pressed (now index 3 instead of 2)
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const MarketplacePage()),
-          );
-        } else {
-          setState(() => _selectedIndex = index);
-        }
-      },
+      onTap: () => _onItemTapped(context, index),
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
@@ -127,4 +146,3 @@ class _NavItem {
 
   const _NavItem({required this.icon, required this.label});
 }
-
