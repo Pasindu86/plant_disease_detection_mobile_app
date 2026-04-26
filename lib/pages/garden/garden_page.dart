@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:plant_disease_detection_mobile_app/services/reminder_service.dart';
 import 'package:plant_disease_detection_mobile_app/models/reminder_model.dart';
 import 'package:plant_disease_detection_mobile_app/pages/garden/new_reminder_form.dart';
@@ -24,14 +25,12 @@ class _GardenPageState extends State<GardenPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
+        titleSpacing: 20.0,
         title: const Text(
           'My Garden',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
-        actions: const [
-          HeaderActionButtons(),
-          SizedBox(width: 16),
-        ],
+        actions: const [HeaderActionButtons(), SizedBox(width: 20)],
       ),
       body: _buildGardenContent(),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
@@ -118,8 +117,8 @@ class _GardenPageState extends State<GardenPage> {
                         ],
                       ),
                       Icon(
-                        Icons.local_florist,
-                        size: 48,
+                        FontAwesomeIcons.leaf,
+                        size: 30,
                         color: const Color(0xFF4CAF50).withOpacity(0.6),
                       ),
                     ],
@@ -147,8 +146,8 @@ class _GardenPageState extends State<GardenPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.local_florist,
-            size: 80,
+            FontAwesomeIcons.leaf,
+            size: 60,
             color: const Color(0xFF4CAF50).withOpacity(0.3),
           ),
           const SizedBox(height: 16),

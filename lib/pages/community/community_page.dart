@@ -30,24 +30,15 @@ class _CommunityPageState extends State<CommunityPage> {
       backgroundColor: Colors.grey[100],
       extendBody: true,
       appBar: AppBar(
-        title: const Text('Community', style: TextStyle(color: Colors.black87)),
+        titleSpacing: 20.0,
+        title: const Text('Community', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
         iconTheme: const IconThemeData(color: Colors.black87),
-        actions: [
-          const HeaderActionButtons(),
-          const SizedBox(width: 4),
-          IconButton(
-            icon: const Icon(Icons.add_box_rounded),
-            color: const Color(0xFF4CAF50),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CreatePostPage()),
-              );
-            },
-          ),
+        actions: const [
+          HeaderActionButtons(),
+          SizedBox(width: 20),
         ],
       ),
       body: StreamBuilder<List<PostModel>>(
@@ -86,7 +77,18 @@ class _CommunityPageState extends State<CommunityPage> {
           );
         },
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 4),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CreatePostPage()),
+          );
+        },
+        backgroundColor: const Color(0xFF4CAF50),
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.add),
+      ),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 3),
     );
   }
 }
