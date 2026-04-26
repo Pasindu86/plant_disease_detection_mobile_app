@@ -4,13 +4,18 @@ import '../../services/disease_detection_service.dart';
 import '../../services/plant_classifier_service.dart';
 import 'result_page.dart';
 
-class ScanHistoryPage extends StatelessWidget {
+class ScanHistoryPage extends StatefulWidget {
   const ScanHistoryPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final DiseaseDetectionService detectionService = DiseaseDetectionService();
+  State<ScanHistoryPage> createState() => _ScanHistoryPageState();
+}
 
+class _ScanHistoryPageState extends State<ScanHistoryPage> {
+  final DiseaseDetectionService detectionService = DiseaseDetectionService();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
@@ -23,8 +28,8 @@ class ScanHistoryPage extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
-      body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: detectionService.getUserDetections(),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: detectionService.getUserDetections(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -299,9 +304,12 @@ class ScanHistoryPage extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              service.deleteDetection(id);
-              Navigator.pop(context);
+            onPressed: () async {
+              await service.deleteDetection(id);
+              if (mounted) {
+                Navigator.pop(context);
+                setState(() {}); // Refresh the list
+              }
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),

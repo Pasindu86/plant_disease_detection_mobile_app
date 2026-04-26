@@ -261,9 +261,9 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 8),
 
-              // Disease Alerts Stream
-              StreamBuilder<List<Map<String, dynamic>>>(
-                stream: DiseaseDetectionService().getUserDetections(),
+              // Disease Alerts Future
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: DiseaseDetectionService().getUserDetections(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());

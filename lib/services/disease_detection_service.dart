@@ -1,17 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path/path.dart' as p;
 
-/// Service to save and retrieve disease detection records from Firestore.
+/// Service to save and retrieve disease detection records from local cache.
 class DiseaseDetectionService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  static const String _cacheKey = 'scan_history_cache';
 
-  // Use a getter so it doesn't crash the entire service if the plugin is missing during instantiation
-  FirebaseStorage get _storage => FirebaseStorage.instance;
-
-  /// Save a disease detection result to Firestore
+  /// Save a disease detection result to local cache
   Future<void> saveDetection({
     required String diseaseName,
     required double confidence,
@@ -19,109 +16,122 @@ class DiseaseDetectionService {
     String? imagePath,
   }) async {
     try {
-      final user = _auth.currentUser;
-      if (user == null) {
-        throw Exception('User must be logged in to save detections');
-      }
-
-      String? imageUrl = imagePath;
+      final prefs = await SharedPreferences.getInstance();
       
-      // Upload image to Firebase Storage if it's a local file
-      if (imagePath != null && imagePath.isNotEmpty && !imagePath.startsWith('http')) {
-        final file = File(imagePath);
-        if (await file.exists()) {
-          try {
-            final fileName = 'detections/${user.uid}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-            final ref = _storage.ref().child(fileName);
-            await ref.putFile(file);
-            imageUrl = await ref.getDownloadURL();
-          } catch (storageError) {
-            print('⚠️ Storage upload failed (is Firebase Storage enabled?): $storageError');
-            // If storage fails, we just keep the local path or null so Firestore save can still complete
-            imageUrl = imagePath; 
+      String? savedImagePath = imagePath;
+
+      // Move the image from temporary cache to permanent app directory
+      if (imagePath != null && imagePath.isNotEmpty) {
+        final File originalFile = File(imagePath);
+        if (await originalFile.exists()) {
+          final directory = await getApplicationDocumentsDirectory();
+          final String fileExtension = p.extension(imagePath);
+          final String newFileName = '${DateTime.now().millisecondsSinceEpoch}$fileExtension';
+          final String newPath = p.join(directory.path, 'scans', newFileName);
+          
+          // Ensure folder exists
+          final savedDir = Directory(p.join(directory.path, 'scans'));
+          if (!(await savedDir.exists())) {
+            await savedDir.create(recursive: true);
           }
+
+          final File savedFile = await originalFile.copy(newPath);
+          savedImagePath = savedFile.path;
         }
       }
 
-      await _firestore.collection('plant-care-o1').add({
-        'userId': user.uid,
-        'userEmail': user.email,
+      // Create new record
+      final newRecord = {
+        'id': DateTime.now().millisecondsSinceEpoch.toString(),
         'diseaseName': diseaseName,
         'confidence': confidence,
         'isHealthy': isHealthy,
-        'imagePath': imageUrl,
-        'timestamp': FieldValue.serverTimestamp(),
+        'imagePath': savedImagePath, // Save the permanent local file path
         'detectedAt': DateTime.now().toIso8601String(),
-      });
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      };
+
+      // Get existing history
+      final String? cachedData = prefs.getString(_cacheKey);
+      List<dynamic> history = [];
       
-      print('✅ Detection saved successfully: $diseaseName ($confidence)');
+      if (cachedData != null) {
+        history = json.decode(cachedData);
+      }
+
+      // Add new record to the top
+      history.insert(0, newRecord);
+
+      // Save back to cache
+      await prefs.setString(_cacheKey, json.encode(history));
+      print('✅ Detection cached successfully locally: $diseaseName ($confidence)');
     } catch (e) {
-      print('❌ Error saving detection: $e');
+      print('❌ Error saving detection locally: $e');
       rethrow;
     }
   }
 
-  /// Get all detections for the current user
-  Stream<List<Map<String, dynamic>>> getUserDetections() {
-    final user = _auth.currentUser;
-    if (user == null) {
-      return Stream.value([]);
+  /// Get all detections from local cache
+  Future<List<Map<String, dynamic>>> getUserDetections() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? cachedData = prefs.getString(_cacheKey);
+      
+      if (cachedData == null) return [];
+
+      final List<dynamic> history = json.decode(cachedData);
+      return history.map((e) => Map<String, dynamic>.from(e)).toList();
+    } catch (e) {
+      print('❌ Error getting local detections: $e');
+      return [];
     }
-
-    return _firestore
-        .collection('plant-care-o1')
-        .where('userId', isEqualTo: user.uid)
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return data;
-      }).toList();
-    });
   }
 
-  /// Get detection count for the current user
+  /// Get detection count from local cache
   Future<int> getDetectionCount() async {
-    final user = _auth.currentUser;
-    if (user == null) return 0;
-
-    final snapshot = await _firestore
-        .collection('plant-care-o1')
-        .where('userId', isEqualTo: user.uid)
-        .get();
-
-    return snapshot.docs.length;
+    final detections = await getUserDetections();
+    return detections.length;
   }
 
-  /// Delete a specific detection
+  /// Delete a specific detection from local cache
   Future<void> deleteDetection(String detectionId) async {
     try {
-      await _firestore.collection('plant-care-o1').doc(detectionId).delete();
-      print('✅ Detection deleted successfully');
+      final prefs = await SharedPreferences.getInstance();
+      final String? cachedData = prefs.getString(_cacheKey);
+      
+      if (cachedData == null) return;
+
+      List<dynamic> history = json.decode(cachedData);
+      
+      // Find the item to delete its image file too
+      final itemToDelete = history.firstWhere(
+        (item) => item['id'] == detectionId, 
+        orElse: () => null
+      );
+      
+      if (itemToDelete != null && itemToDelete['imagePath'] != null) {
+        final file = File(itemToDelete['imagePath']);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      }
+
+      // Remove the item with matching id
+      history.removeWhere((item) => item['id'] == detectionId);
+
+      // Save updated list back to cache
+      await prefs.setString(_cacheKey, json.encode(history));
+      print('✅ Detection deleted locally successfully');
     } catch (e) {
-      print('❌ Error deleting detection: $e');
+      print('❌ Error deleting local detection: $e');
       rethrow;
     }
   }
 
-  /// Get recent detections (limited to n)
+  /// Get recent detections (limited to n) from local cache
   Future<List<Map<String, dynamic>>> getRecentDetections({int limit = 10}) async {
-    final user = _auth.currentUser;
-    if (user == null) return [];
-
-    final snapshot = await _firestore
-        .collection('plant-care-o1')
-        .where('userId', isEqualTo: user.uid)
-        .orderBy('timestamp', descending: true)
-        .limit(limit)
-        .get();
-
-    return snapshot.docs.map((doc) {
-      final data = doc.data();
-      data['id'] = doc.id;
-      return data;
-    }).toList();
+    final detections = await getUserDetections();
+    if (detections.length <= limit) return detections;
+    return detections.take(limit).toList();
   }
 }
