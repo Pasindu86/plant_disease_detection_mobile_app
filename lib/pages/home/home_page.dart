@@ -483,32 +483,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        onScanTap: () {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const ScanPage(),
-              transitionsBuilder: (_, animation, __, child) {
-                return SlideTransition(
-                  position:
-                      Tween<Offset>(
-                        begin: const Offset(0, 1),
-                        end: Offset.zero,
-                      ).animate(
-                        CurvedAnimation(
-                          parent: animation,
-                          curve: Curves.easeOutCubic,
-                        ),
-                      ),
-                  child: child,
-                );
-              },
-              transitionDuration: const Duration(milliseconds: 400),
-            ),
-          );
-        },
-      ),
+      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 }
