@@ -4,6 +4,7 @@ import '../pages/home/home_page.dart';
 import '../pages/marketplace/marketplace_page.dart';
 import '../pages/garden/garden_page.dart' as plant_garden;
 import '../pages/community/community_page.dart';
+import '../pages/scan/scan_page.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -116,7 +117,17 @@ class CustomBottomNavBar extends StatelessWidget {
           Positioned(
             bottom: 35, // Floats slightly above the bar
             child: GestureDetector(
-              onTap: onScanTap,
+              onTap: () {
+                if (onScanTap != null) {
+                  onScanTap!();
+                } else {
+                  // Default: navigate to ScanPage
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ScanPage()),
+                  );
+                }
+              },
               child: Container(
                 width: 72,
                 height: 72,

@@ -5,6 +5,7 @@ import 'package:plant_disease_detection_mobile_app/pages/scan/scan_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/profile/user_profile_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/chat/chat_page.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/custom_bottom_navbar.dart';
+import 'package:plant_disease_detection_mobile_app/widgets/header_action_buttons.dart';
 import 'package:plant_disease_detection_mobile_app/widgets/weather_quick_action_card.dart';
 import 'package:plant_disease_detection_mobile_app/globals.dart';
 import 'package:plant_disease_detection_mobile_app/services/disease_detection_service.dart';
@@ -140,30 +141,7 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                   const Spacer(),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ScanPage()),
-                      ).then((_) {
-                        if (mounted) setState(() {});
-                      });
-                    },
-                    icon: const Icon(Icons.qr_code_scanner, size: 18),
-                    label: const Text('Scan'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1EAC50),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
+                  const HeaderActionButtons(),
                 ],
               ),
 
