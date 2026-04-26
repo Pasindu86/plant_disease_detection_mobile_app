@@ -1,96 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../pages/home/home_page.dart';
 import '../pages/marketplace/marketplace_page.dart';
 import '../pages/garden/garden_page.dart' as plant_garden;
-
 import '../pages/community/community_page.dart';
 
-class CustomBottomNavBar extends StatefulWidget {
-  final VoidCallback onScanTap;
+class CustomBottomNavBar extends StatelessWidget {
+  final int currentIndex;
 
-  const CustomBottomNavBar({super.key, required this.onScanTap});
-
-  @override
-  State<CustomBottomNavBar> createState() => _CustomBottomNavBarState();
-}
-
-class _CustomBottomNavBarState extends State<CustomBottomNavBar>
-    with TickerProviderStateMixin {
-  int _selectedIndex = 0;
-
-  late AnimationController _pulseController;
-  late AnimationController _tapController;
-  late Animation<double> _pulseAnimation;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _glowAnimation;
+  const CustomBottomNavBar({super.key, this.currentIndex = 0});
 
   static const _navItems = [
     _NavItem(icon: Icons.home_rounded, label: 'Home'),
     _NavItem(icon: Icons.yard_rounded, label: 'My Garden'),
-    _NavItem(
-      icon: Icons.store_rounded,
-      label: 'Market',
-    ), // Replaced Tasks with Market
+    _NavItem(icon: Icons.medical_services_rounded, label: 'Care'),
+    _NavItem(icon: Icons.store_rounded, label: 'Market'),
     _NavItem(icon: Icons.people_alt_rounded, label: 'Community'),
   ];
 
-  @override
-  void initState() {
-    super.initState();
+  void _onItemTapped(BuildContext context, int index) {
+    if (index == currentIndex) return; // Already on this page
 
-    // Breathing pulse ring
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2400),
-    )..repeat(reverse: true);
-    _pulseAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    HapticFeedback.selectionClick();
+
+    Widget page;
+    switch (index) {
+      case 0:
+        page = const HomePage();
+        break;
+      case 1:
+        page = const plant_garden.GardenPage();
+        break;
+      case 2:
+        // Care page not developed yet — do nothing
+        return;
+      case 3:
+        page = const MarketplacePage();
+        break;
+      case 4:
+        page = const CommunityPage();
+        break;
+      default:
+        return;
+    }
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => page,
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+      ),
+      (route) => false,
     );
-
-    // Tap scale + glow
-    _tapController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 120),
-      reverseDuration: const Duration(milliseconds: 200),
-    );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.88,
-    ).animate(CurvedAnimation(parent: _tapController, curve: Curves.easeOut));
-    _glowAnimation = Tween<double>(
-      begin: 0.35,
-      end: 0.7,
-    ).animate(CurvedAnimation(parent: _tapController, curve: Curves.easeOut));
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    _tapController.dispose();
-    super.dispose();
-  }
-
-  void _onTapDown(TapDownDetails _) {
-    _tapController.forward();
-    HapticFeedback.lightImpact();
-  }
-
-  void _onTapUp(TapUpDetails _) {
-    _tapController.reverse();
-    widget.onScanTap();
-  }
-
-  void _onTapCancel() {
-    _tapController.reverse();
   }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 110,
+      height: 90,
       child: Stack(
         alignment: Alignment.bottomCenter,
-        clipBehavior: Clip.none,
         children: [
           // --- White floating pill bar with nav items ---
           Positioned(
@@ -116,86 +88,11 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                 ],
               ),
               child: Row(
-                children: [
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [_buildNavItem(0), _buildNavItem(1)],
-                    ),
-                  ),
-                  const SizedBox(width: 68),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [_buildNavItem(2), _buildNavItem(3)],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // --- Animated pulse ring ---
-          Positioned(
-            bottom: 24,
-            child: AnimatedBuilder(
-              animation: _pulseAnimation,
-              builder: (context, child) {
-                final value = _pulseAnimation.value;
-                return Container(
-                  width: 76 + (value * 12),
-                  height: 76 + (value * 12),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(
-                        0xFF4CAF50,
-                      ).withOpacity(0.12 * (1 - value)),
-                      width: 1.5,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          // --- Scan button ---
-          Positioned(
-            bottom: 30,
-            child: GestureDetector(
-              onTapDown: _onTapDown,
-              onTapUp: _onTapUp,
-              onTapCancel: _onTapCancel,
-              child: AnimatedBuilder(
-                animation: _tapController,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _scaleAnimation.value,
-                    child: Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFF4CAF50),
-                        border: Border.all(color: Colors.white, width: 4),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(
-                              0xFF4CAF50,
-                            ).withOpacity(_glowAnimation.value),
-                            blurRadius: 20,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.document_scanner_rounded,
-                        color: Colors.white,
-                        size: 26,
-                      ),
-                    ),
-                  );
-                },
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(
+                  _navItems.length,
+                  (index) => _buildNavItem(context, index),
+                ),
               ),
             ),
           ),
@@ -204,34 +101,11 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     );
   }
 
-  Widget _buildNavItem(int index) {
+  Widget _buildNavItem(BuildContext context, int index) {
     final item = _navItems[index];
-    final isSelected = _selectedIndex == index;
+    final isSelected = currentIndex == index;
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        if (index == 1) {
-          // My Garden tab pressed
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const plant_garden.GardenPage()),
-          );
-        } else if (index == 2) {
-          // Market tab pressed
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const MarketplacePage()),
-          );
-        } else if (index == 3) {
-          // Community tab pressed
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const CommunityPage()),
-          );
-        } else {
-          setState(() => _selectedIndex = index);
-        }
-      },
+      onTap: () => _onItemTapped(context, index),
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),

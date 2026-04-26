@@ -64,7 +64,7 @@ class _ChatPageState extends State<ChatPage> {
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, color: Colors.black87, size: 24),
+                    child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87, size: 20),
                   ),
                   const SizedBox(width: 16),
                   const Text(
