@@ -21,12 +21,42 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with RouteAware {
+  Future<List<Map<String, dynamic>>>? _detectionsFuture;
+
   @override
   void initState() {
     super.initState();
+    _refreshDetections();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showAiAssistant.value = true;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute is PageRoute) {
+      globalRouteObserver.subscribe(this, modalRoute);
+    }
+  }
+
+  @override
+  void dispose() {
+    globalRouteObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Called when the top route has been popped off, and the current route shows up.
+    _refreshDetections();
+  }
+
+  void _refreshDetections() {
+    setState(() {
+      _detectionsFuture = DiseaseDetectionService().getUserDetections();
     });
   }
 
@@ -174,7 +204,7 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(builder: (_) => const ScanPage()),
                       ).then((_) {
-                        if (mounted) setState(() {});
+                        if (mounted) _refreshDetections();
                       });
                     },
                     child: _buildQuickActionCard(
@@ -240,7 +270,7 @@ class _HomePageState extends State<HomePage> {
                           builder: (_) => const ScanHistoryPage(),
                         ),
                       ).then((_) {
-                        if (mounted) setState(() {});
+                        if (mounted) _refreshDetections();
                       });
                     },
                     child: const Text(
@@ -258,10 +288,44 @@ class _HomePageState extends State<HomePage> {
 
               // Disease Alerts Future
               FutureBuilder<List<Map<String, dynamic>>>(
-                future: DiseaseDetectionService().getUserDetections(),
+                future: _detectionsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.redAccent,
+                            size: 40,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Could not load alerts.',
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            snapshot.error.toString(),
+                            style: const TextStyle(color: Colors.black38),
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    );
                   }
 
                   final detections = snapshot.data ?? [];
