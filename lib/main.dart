@@ -7,7 +7,6 @@ import 'firebase_options.dart';
 import 'pages/login/login_page.dart';
 import 'pages/home/home_page.dart';
 import 'globals.dart';
-import 'widgets/animated_chat_button.dart';
 import 'widgets/system_theme_wrapper.dart';
 
 void main() async {
@@ -35,9 +34,7 @@ class MyApp extends StatelessWidget {
       navigatorObservers: [globalRouteObserver],
       builder: (context, child) {
         return SystemThemeWrapper(
-          child: Stack(
-            children: [if (child != null) child, const AnimatedChatButton()],
-          ),
+          child: child ?? const SizedBox.shrink(),
         );
       },
       title: 'Plant Care',

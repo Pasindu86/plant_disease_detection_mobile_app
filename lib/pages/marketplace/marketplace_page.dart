@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/market_item.dart';
 import '../../services/marketplace_service.dart';
 import '../../widgets/market_item_card.dart';
+import '../../widgets/custom_bottom_navbar.dart';
+import '../../widgets/header_action_buttons.dart';
 import 'add_item_page.dart';
 
 class MarketplacePage extends StatelessWidget {
@@ -15,6 +17,7 @@ class MarketplacePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      extendBody: true,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,11 +27,6 @@ class MarketplacePage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, color: Colors.black87, size: 24),
-                  ),
-                  const SizedBox(width: 16),
                   const Text(
                     'Marketplace',
                     style: TextStyle(
@@ -37,6 +35,8 @@ class MarketplacePage extends StatelessWidget {
                       color: Colors.black87,
                     ),
                   ),
+                  const Spacer(),
+                  const HeaderActionButtons(),
                 ],
               ),
             ),
@@ -142,17 +142,21 @@ class MarketplacePage extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddItemPage()),
-          );
-        },
-        backgroundColor: const Color(0xFF1EAC50),
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 80),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddItemPage()),
+            );
+          },
+          backgroundColor: const Color(0xFF1EAC50),
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.add),
+        ),
       ),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 3),
     );
   }
 }

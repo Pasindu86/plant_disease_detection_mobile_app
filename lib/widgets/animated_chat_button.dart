@@ -26,7 +26,7 @@ class _AnimatedChatButtonState extends State<AnimatedChatButton>
 
     _scaleAnimation = Tween<double>(
       begin: 1.0,
-      end: 1.15,
+      end: 1.1,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -52,42 +52,82 @@ class _AnimatedChatButtonState extends State<AnimatedChatButton>
             if (!showAi) return const SizedBox.shrink();
 
             return Positioned(
-              bottom: 120, // Just above the bottom nav bar (typically 110px)
+              bottom: 100, // Positioned just above the bottom nav bar
               right: 24,
-          child: Material(
-            color: Colors.transparent,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: FloatingActionButton(
-                heroTag: 'global_chat_fab',
-                backgroundColor: const Color(0xFF4CAF50),
-                foregroundColor: Colors.white,
-                elevation: 8,
-                onPressed: () async {
-                  setState(() => _isVisible = false);
+              child: Material(
+                color: Colors.transparent,
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: GestureDetector(
+                    onTap: () async {
+                      setState(() => _isVisible = false);
 
-                  // Use the global navigator key to push the chat page
-                  await globalNavigatorKey.currentState?.push(
-                    MaterialPageRoute(
-                      settings: const RouteSettings(name: '/chat'),
-                      builder: (_) => const ChatPage(),
+                      // Use the global navigator key to push the chat page
+                      await globalNavigatorKey.currentState?.push(
+                        MaterialPageRoute(
+                          settings: const RouteSettings(name: '/chat'),
+                          builder: (_) => const ChatPage(),
+                        ),
+                      );
+
+                      // When it pops back, show the button again
+                      if (mounted) {
+                        setState(() => _isVisible = true);
+                      }
+                    },
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF4CAF50),
+                            Color(0xFF2E7D32),
+                          ],
+                        ),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 3,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF4CAF50).withOpacity(0.4),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Icon(
+                            Icons.smart_toy_rounded,
+                            size: 26,
+                            color: Colors.white,
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: Icon(
+                              Icons.auto_awesome,
+                              size: 10,
+                              color: Color(0xFFFFD54F),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  );
-
-                  // When it pops back, show the button again
-                  if (mounted) {
-                    setState(() => _isVisible = true);
-                  }
-                },
-                // Reverted to a built-in flutter icon until the physical image file is downloaded and placed in assets/images/
-                child: const Icon(
-                  Icons.auto_awesome, // A great sparkling AI icon to represent the bot!
-                  size: 32,
-                  color: Colors.white,
+                  ),
                 ),
               ),
-            ),
-          ),
             );
           },
         );
