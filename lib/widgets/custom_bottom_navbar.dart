@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import '../pages/home/home_page.dart';
 import '../pages/marketplace/marketplace_page.dart';
 import '../pages/garden/garden_page.dart' as plant_garden;
-import '../pages/chat/chat_page.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -38,8 +37,8 @@ class CustomBottomNavBar extends StatelessWidget {
         page = const MarketplacePage();
         break;
       case 4:
-        page = const ChatPage();
-        break;
+        // Community page not developed yet — do nothing
+        return;
       default:
         return;
     }
