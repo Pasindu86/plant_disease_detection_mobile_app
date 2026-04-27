@@ -12,6 +12,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
+  final Color primaryGreen = const Color(0xFF1EAC50);
+
   final List<Map<String, String>> _onboardingData = [
     {
       "title": "Identify Diseases Instantly",
@@ -28,6 +30,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
       "subtitle": "Access a community of chilli enthusiasts and read articles on best farming practices.",
       "image": "assets/images/onboarding3.png"
     },
+    {
+      "title": "Community Marketplace",
+      "subtitle": "Buy and sell fresh produce, quality seeds, and farming supplies directly with other farmers.",
+      "image": "assets/images/onboarding4.png"
+    },
   ];
 
   Future<void> _completeOnboarding() async {
@@ -41,7 +48,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void _nextPage() {
     if (_currentPage < _onboardingData.length - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
       );
     } else {
@@ -58,14 +65,24 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: TextButton(
-                onPressed: _completeOnboarding,
-                child: const Text('Skip'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: TextButton(
+                  onPressed: _completeOnboarding,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.grey[600],
+                  ),
+                  child: const Text(
+                    'Skip',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
             ),
             Expanded(
@@ -79,44 +96,72 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 itemCount: _onboardingData.length,
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
+                          flex: 3,
                           child: Center(
-                            child: Image.asset(
-                              _onboardingData[index]["image"]!,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) => 
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
                                 Container(
-                                  color: Colors.grey[200],
-                                  alignment: Alignment.center,
-                                  child: const Icon(Icons.image, size: 100, color: Colors.grey),
+                                  width: 250,
+                                  height: 250,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: primaryGreen.withOpacity(0.08),
+                                  ),
                                 ),
+                                Image.asset(
+                                  _onboardingData[index]["image"]!,
+                                  fit: BoxFit.contain,
+                                  height: 280,
+                                  errorBuilder: (context, error, stackTrace) => 
+                                    Container(
+                                      width: 200,
+                                      height: 200,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[100],
+                                        shape: BoxShape.circle,
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Icon(Icons.image, size: 80, color: Colors.grey[400]),
+                                    ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        const SizedBox(height: 32),
-                        Text(
-                          _onboardingData[index]["title"]!,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 24),
+                              Text(
+                                _onboardingData[index]["title"]!,
+                                style: const TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.black87,
+                                  height: 1.2,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                _onboardingData[index]["subtitle"]!,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                  height: 1.5,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _onboardingData[index]["subtitle"]!,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                            height: 1.5,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 48),
                       ],
                     ),
                   );
@@ -124,22 +169,23 @@ class _OnboardingPageState extends State<OnboardingPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: List.generate(
                       _onboardingData.length,
-                      (index) => Container(
+                      (index) => AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
                         margin: const EdgeInsets.only(right: 8),
-                        height: 8,
-                        width: _currentPage == index ? 24 : 8,
+                        height: 10,
+                        width: _currentPage == index ? 24 : 10,
                         decoration: BoxDecoration(
                           color: _currentPage == index
-                              ? Theme.of(context).colorScheme.primary
+                              ? primaryGreen
                               : Colors.grey[300],
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                     ),
@@ -147,21 +193,34 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ElevatedButton(
                     onPressed: _nextPage,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      backgroundColor: primaryGreen,
                       foregroundColor: Colors.white,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 32,
-                        vertical: 16,
+                        vertical: 18,
                       ),
                     ),
-                    child: Text(
-                      _currentPage == _onboardingData.length - 1
-                          ? 'Get Started'
-                          : 'Next',
-                      style: const TextStyle(fontSize: 16),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _currentPage == _onboardingData.length - 1
+                              ? 'Get Started'
+                              : 'Next',
+                          style: const TextStyle(
+                            fontSize: 16, 
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (_currentPage < _onboardingData.length - 1) ...[
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward_ios, size: 16),
+                        ],
+                      ],
                     ),
                   ),
                 ],
