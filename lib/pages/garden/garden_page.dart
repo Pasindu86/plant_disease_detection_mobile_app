@@ -26,7 +26,7 @@ class _GardenPageState extends State<GardenPage> {
         elevation: 0,
         automaticallyImplyLeading: false,
         title: const Text(
-          'My Garden',
+          'Reminders',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
         actions: const [HeaderActionButtons(), SizedBox(width: 16)],
