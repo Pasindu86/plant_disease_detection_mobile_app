@@ -116,6 +116,19 @@ class _ChatPageState extends State<ChatPage> {
                 },
               ),
             ),
+            if (_messages.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                child: Wrap(
+                  spacing: 8.0,
+                  runSpacing: 8.0,
+                  children: [
+                     _buildSuggestionChip('My chilli leaves are yellowing.'),
+                     _buildSuggestionChip('When should I harvest?'),
+                     _buildSuggestionChip('How to prevent pests?'),
+                  ],
+                ),
+              ),
             if (_isLoading)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -178,5 +191,19 @@ class _ChatPageState extends State<ChatPage> {
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Widget _buildSuggestionChip(String text) {
+    return ActionChip(
+      label: Text(text),
+      labelStyle: const TextStyle(fontSize: 13, color: Colors.black87),
+      backgroundColor: const Color(0xFFE5F9E9), // Light green
+      side: BorderSide(color: Colors.green.shade200),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      onPressed: () {
+        _messageController.text = text;
+        _sendMessage();
+      },
+    );
   }
 }
