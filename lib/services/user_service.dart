@@ -41,7 +41,11 @@ class UserService {
   }
 
   // Update user profile
-  Future<void> updateUserProfile({String? name, String? phoneNumber}) async {
+  Future<void> updateUserProfile({
+    String? name,
+    String? phoneNumber,
+    String? address,
+  }) async {
     try {
       final currentUser = _auth.currentUser;
       if (currentUser == null) {
@@ -59,6 +63,9 @@ class UserService {
       }
       if (phoneNumber != null) {
         updateData['phoneNumber'] = phoneNumber;
+      }
+      if (address != null) {
+        updateData['address'] = address;
       }
 
       // Use set with merge to create document if it doesn't exist
