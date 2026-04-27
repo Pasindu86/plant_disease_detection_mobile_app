@@ -3,8 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:plant_disease_detection_mobile_app/services/plant_classifier_service.dart';
 import 'package:plant_disease_detection_mobile_app/services/disease_detection_service.dart';
-
-import 'package:plant_disease_detection_mobile_app/services/care_treatment_service.dart';
+import 'result_treatment_section.dart';
 
 class ResultPage extends StatefulWidget {
   final String imagePath;
@@ -403,76 +402,12 @@ class _ResultPageState extends State<ResultPage> {
             ),
             const SizedBox(height: 12),
 
-            // ── Care tips card ──
-            _InfoCard(
-              icon: Icons.local_florist_rounded,
-              title: isHealthy ? 'Maintenance Tips' : 'Treatment & Care Tips',
+            // ── Care tips & Treatment ──
+            ResultTreatmentSection(
+              isHealthy: isHealthy,
               content: info['tips'] ?? '',
-              iconColor: const Color(0xFF4CAF50),
+              topResult: topResult,
             ),
-            const SizedBox(height: 12),
-
-            // Add Care Treatment button - shown if there are care tips
-            if (!isHealthy && (info['tips']?.isNotEmpty ?? false))
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    final List<String> steps = (info['tips'] ?? '')
-                        .split('\n')
-                        .map((e) => e.replaceAll('•', '').trim())
-                        .where((e) => e.isNotEmpty)
-                        .toList();
-
-                    if (steps.isNotEmpty) {
-                      try {
-                        await CareTreatmentService().saveTreatment(
-                          diseaseName: topResult?.label ?? 'Plant Treatment',
-                          tips: 'Care Treatment:\n${steps.join("\n")}',
-                        );
-
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Treatment saved to Care Treatments!',
-                              ),
-                              backgroundColor: Color(0xFF4CAF50),
-                              duration: Duration(seconds: 3),
-                            ),
-                          );
-                          // Pop back to home after saving
-                          int popCount = 0;
-                          Navigator.of(context).popUntil((_) => ++popCount > 2);
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to save treatment: $e'),
-                              backgroundColor: const Color(0xFFE53935),
-                            ),
-                          );
-                        }
-                      }
-                    }
-                  },
-                  icon: const Icon(Icons.add_circle_outline_rounded),
-                  label: const Text(
-                    'Add Care Treatment',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF66BB6A),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 2,
-                  ),
-                ),
-              ),
             const SizedBox(height: 16),
 
             // ── All predictions ──
