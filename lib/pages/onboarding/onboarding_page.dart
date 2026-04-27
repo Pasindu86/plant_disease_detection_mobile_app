@@ -103,34 +103,35 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         Expanded(
                           flex: 3,
                           child: Center(
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Container(
-                                  width: 250,
-                                  height: 250,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: primaryGreen.withOpacity(0.08),
+                            child: Container(
+                              width: 280,
+                              height: 280,
+                              decoration: BoxDecoration(
+                                color: primaryGreen.withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: primaryGreen.withOpacity(0.12),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: Image.asset(
+                                _onboardingData[index]["image"]!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                  color: Colors.grey[100],
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    Icons.image_outlined,
+                                    size: 80,
+                                    color: Colors.grey[400],
                                   ),
                                 ),
-                                Image.asset(
-                                  _onboardingData[index]["image"]!,
-                                  fit: BoxFit.contain,
-                                  height: 280,
-                                  errorBuilder: (context, error, stackTrace) => 
-                                    Container(
-                                      width: 200,
-                                      height: 200,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[100],
-                                        shape: BoxShape.circle,
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Icon(Icons.image, size: 80, color: Colors.grey[400]),
-                                    ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
                         ),

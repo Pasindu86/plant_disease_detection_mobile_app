@@ -13,6 +13,7 @@ import 'package:plant_disease_detection_mobile_app/services/plant_classifier_ser
 import 'package:plant_disease_detection_mobile_app/pages/scan/scan_history_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/scan/result_page.dart';
 import 'package:plant_disease_detection_mobile_app/pages/home/care_treatments_page.dart';
+import 'package:plant_disease_detection_mobile_app/pages/login/login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -120,84 +121,192 @@ class _HomePageState extends State<HomePage> with RouteAware {
     );
   }
 
+  Future<void> _handleSignOut(BuildContext context) async {
+    Navigator.pop(context); // Close drawer first
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Sign Out', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      await FirebaseAuth.instance.signOut();
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+          (route) => false,
+        );
+      }
+    }
+  }
+
   Widget _buildDrawer(BuildContext context, String firstName, String email) {
+    final initials = firstName.isNotEmpty ? firstName[0].toUpperCase() : 'F';
+
     return Drawer(
       backgroundColor: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DrawerHeader(
+          // ── Header ──────────────────────────────────────────────
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 56, 20, 24),
             decoration: const BoxDecoration(
-              color: Color(0xFF1EAC50), // Main green color
+              gradient: LinearGradient(
+                colors: [Color(0xFF1EAC50), Color(0xFF178740)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
+            child: Row(
               children: [
-                const CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.person, size: 35, color: Color(0xFF1EAC50)),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  firstName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (email.isNotEmpty)
-                  Text(
-                    email,
+                CircleAvatar(
+                  radius: 32,
+                  backgroundColor: Colors.white.withOpacity(0.25),
+                  child: Text(
+                    initials,
                     style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
+                ),
+                const SizedBox(width: 14),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        firstName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      if (email.isNotEmpty)
+                        Text(
+                          email,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.person_outline, color: Colors.black87),
-            title: const Text('My Profile', style: TextStyle(fontSize: 16)),
+
+          const SizedBox(height: 8),
+
+          // ── Menu Items ───────────────────────────────────────────
+          _drawerTile(
+            context,
+            icon: Icons.person_outline,
+            label: 'My Profile',
             onTap: () {
-              Navigator.pop(context); // Close drawer
+              Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const UserProfilePage(),
-                ),
+                MaterialPageRoute(builder: (_) => const UserProfilePage()),
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.history, color: Colors.black87),
-            title: const Text('Scan History', style: TextStyle(fontSize: 16)),
+          _drawerTile(
+            context,
+            icon: Icons.history,
+            label: 'Scan History',
             onTap: () {
-              Navigator.pop(context); // Close drawer
+              Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const ScanHistoryPage(),
-                ),
+                MaterialPageRoute(builder: (_) => const ScanHistoryPage()),
               ).then((_) {
                 if (mounted) _refreshDetections();
               });
             },
           ),
+
           const Spacer(),
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+
+          // ── Logout ───────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Divider(color: Colors.grey.shade200),
+          ),
+          _drawerTile(
+            context,
+            icon: Icons.logout_outlined,
+            label: 'Sign Out',
+            iconColor: Colors.red,
+            labelColor: Colors.red,
+            onTap: () => _handleSignOut(context),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
             child: Text(
               'Plant Care v1.0.0',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black38, fontSize: 12),
+              style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _drawerTile(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color iconColor = Colors.black87,
+    Color labelColor = Colors.black87,
+  }) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: iconColor == Colors.red
+              ? Colors.red.withOpacity(0.08)
+              : Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: iconColor, size: 20),
+      ),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: labelColor,
+        ),
+      ),
+      trailing: Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 18),
+      onTap: onTap,
     );
   }
 
