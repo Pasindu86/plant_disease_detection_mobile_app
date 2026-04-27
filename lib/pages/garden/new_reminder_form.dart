@@ -141,12 +141,14 @@ class _NewReminderFormState extends State<NewReminderForm> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Create New Reminder',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1A2E),
+                    const Expanded(
+                      child: Text(
+                        'Create New Reminder',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1A1A2E),
+                        ),
                       ),
                     ),
                     IconButton(

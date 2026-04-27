@@ -23,6 +23,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with RouteAware {
   Future<List<Map<String, dynamic>>>? _detectionsFuture;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -119,6 +120,87 @@ class _HomePageState extends State<HomePage> with RouteAware {
     );
   }
 
+  Widget _buildDrawer(BuildContext context, String firstName, String email) {
+    return Drawer(
+      backgroundColor: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: Color(0xFF1EAC50), // Main green color
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, size: 35, color: Color(0xFF1EAC50)),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  firstName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (email.isNotEmpty)
+                  Text(
+                    email,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.person_outline, color: Colors.black87),
+            title: const Text('My Profile', style: TextStyle(fontSize: 16)),
+            onTap: () {
+              Navigator.pop(context); // Close drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const UserProfilePage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.history, color: Colors.black87),
+            title: const Text('Scan History', style: TextStyle(fontSize: 16)),
+            onTap: () {
+              Navigator.pop(context); // Close drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ScanHistoryPage(),
+                ),
+              ).then((_) {
+                if (mounted) _refreshDetections();
+              });
+            },
+          ),
+          const Spacer(),
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              'Plant Care v1.0.0',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black38, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -126,11 +208,13 @@ class _HomePageState extends State<HomePage> with RouteAware {
     final firstName = _getFirstName(user);
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: _buildDrawer(context, firstName, user?.email ?? ''),
       backgroundColor: Colors.white,
       extendBody: true,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          padding: const EdgeInsets.fromLTRB(20.0, 4.0, 20.0, 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -139,13 +223,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      // Profile Routing
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const UserProfilePage(),
-                        ),
-                      );
+                      _scaffoldKey.currentState?.openDrawer();
                     },
                     child: const Icon(Icons.menu, color: Colors.black87),
                   ),
@@ -500,47 +578,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                 },
               ),
 
-              const SizedBox(height: 32),
 
-              // My Plants Title Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'My Plants',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: () {},
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 8),
-
-              // My Plants Empty State
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 32),
-                child: Center(
-                  child: Text(
-                    'Tap the + button to add your first plant.',
-                    style: TextStyle(color: Colors.grey[500]),
-                  ),
-                ),
-              ),
 
               const SizedBox(height: 80), // Padding for bottom nav bar
             ],
