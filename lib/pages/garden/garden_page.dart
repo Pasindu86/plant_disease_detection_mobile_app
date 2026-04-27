@@ -25,12 +25,11 @@ class _GardenPageState extends State<GardenPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
-        titleSpacing: 20.0,
         title: const Text(
-          'My Garden',
+          'Reminders',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
-        actions: const [HeaderActionButtons(), SizedBox(width: 20)],
+        actions: const [HeaderActionButtons(), SizedBox(width: 16)],
       ),
       body: _buildGardenContent(),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
@@ -86,7 +85,12 @@ class _GardenPageState extends State<GardenPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50).withOpacity(0.1),
+                    color: const Color.fromARGB(
+                      255,
+                      255,
+                      255,
+                      255,
+                    ).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: const Color(0xFF4CAF50).withOpacity(0.3),

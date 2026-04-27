@@ -500,47 +500,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                 },
               ),
 
-              const SizedBox(height: 32),
 
-              // My Plants Title Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'My Plants',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: () {},
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 8),
-
-              // My Plants Empty State
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 32),
-                child: Center(
-                  child: Text(
-                    'Tap the + button to add your first plant.',
-                    style: TextStyle(color: Colors.grey[500]),
-                  ),
-                ),
-              ),
 
               const SizedBox(height: 80), // Padding for bottom nav bar
             ],
