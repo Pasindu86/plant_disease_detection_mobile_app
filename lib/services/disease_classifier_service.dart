@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
@@ -18,11 +19,15 @@ import '../models/disease_model.dart';
 /// - Nutrition Deficiency
 /// - White spot
 class DiseaseClassifierService {
-  static const String _modelPath = 'assets/ml/chili_disease_model.tflite';
+  static const List<String> _modelPaths = [
+    'assets/ml/chili_disease_model.tflite',
+    'assets/ml/train.tflite',
+    'assets/ml/model.tflite',
+  ];
   static const String _labelsPath = 'assets/ml/labels.txt';
   static const int _inputSize = 224;
 
-  Interpreter? _interpreter;
+  List<Interpreter> _interpreters = [];
   List<String> _labels = [];
   bool _isInitialized = false;
 
@@ -37,23 +42,31 @@ class DiseaseClassifierService {
   /// Whether the model is loaded and ready.
   bool get isReady => _isInitialized;
 
-  /// Initialize the TFLite interpreter and load labels.
+  /// Initialize the TFLite interpreters and load labels.
   Future<void> initialize() async {
     if (_isInitialized) return;
 
     try {
-      // Load the TFLite model bytes from Flutter assets
-      final modelData = await rootBundle.load(_modelPath);
-      final buffer = modelData.buffer.asUint8List();
+      // Load all 3 TFLite models from Flutter assets for ensemble prediction
+      _interpreters.clear();
+      for (String path in _modelPaths) {
+        final modelData = await rootBundle.load(path);
+        final buffer = modelData.buffer.asUint8List();
+        _interpreters.add(Interpreter.fromBuffer(buffer));
+      }
 
-      // Create interpreter from buffer
-      _interpreter = Interpreter.fromBuffer(buffer);
-
-      // Load labels
+      // Load labels and clean them up
       final labelsData = await rootBundle.loadString(_labelsPath);
       _labels = labelsData
           .split('\n')
-          .map((l) => l.trim())
+          .map((l) {
+            String text = l.trim();
+            // Remove leading numbers and spaces (e.g., "0 Curl Virus" -> "Curl Virus")
+            text = text.replaceFirst(RegExp(r'^\d+\s*'), '');
+            // Fix mismatches between labels.txt and DiseaseInfo database
+            if (text == 'Healthy Leaves') text = 'Healthy Leaf';
+            return text;
+          })
           .where((l) => l.isNotEmpty)
           .toList();
 
@@ -72,8 +85,8 @@ class DiseaseClassifierService {
       await initialize();
     }
 
-    if (_interpreter == null) {
-      throw Exception('Model not loaded. Call initialize() first.');
+    if (_interpreters.isEmpty) {
+      throw Exception('Models not loaded. Call initialize() first.');
     }
 
     // Read image bytes
@@ -83,21 +96,51 @@ class DiseaseClassifierService {
     // Do heavy image processing in a background isolate
     final input = await compute(_preprocessImage, imageBytes);
 
-    // Prepare output tensor [1, numClasses]
-    final output = List.filled(_labels.length, 0.0).reshape([1, _labels.length]);
+    // Initialize list to hold sum of probabilities from all models
+    List<double> ensembleProbabilities = List.filled(_labels.length, 0.0);
 
-    // Run inference (must be on main isolate as interpreter is not transferable)
-    _interpreter!.run(input, output);
+    for (var interpreter in _interpreters) {
+      // Prepare output tensor [1, numClasses]
+      final output = List.filled(_labels.length, 0.0).reshape([1, _labels.length]);
 
-    // Get probabilities
-    final probabilities = (output[0] as List<double>);
+      // Run inference (must be on main isolate as interpreter is not transferable)
+      interpreter.run(input, output);
 
-    // Find the class with highest probability
+      // Get probabilities and check if softmax is needed (often required if logits output)
+      final rawOutput = (output[0] as List<double>);
+      double sum = rawOutput.fold(0.0, (a, b) => a + b);
+      
+      List<double> probabilities;
+      if ((sum - 1.0).abs() > 0.1) {
+        // Model outputted logits, apply softmax
+        double maxLogit = rawOutput.reduce((a, b) => a > b ? a : b);
+        double expSum = 0.0;
+        for (double val in rawOutput) {
+          expSum += math.exp(val - maxLogit);
+        }
+        probabilities = rawOutput.map((e) => math.exp(e - maxLogit) / expSum).toList();
+      } else {
+        // Model already has softmax probability values
+        probabilities = rawOutput;
+      }
+
+      // Add to ensemble probabilities
+      for (int i = 0; i < probabilities.length; i++) {
+        ensembleProbabilities[i] += probabilities[i];
+      }
+    }
+
+    // Average the probabilities across all interpreters
+    for (int i = 0; i < ensembleProbabilities.length; i++) {
+      ensembleProbabilities[i] /= _interpreters.length;
+    }
+
+    // Find the class with highest average probability
     double maxProb = 0.0;
     int maxIndex = 0;
-    for (int i = 0; i < probabilities.length; i++) {
-      if (probabilities[i] > maxProb) {
-        maxProb = probabilities[i];
+    for (int i = 0; i < ensembleProbabilities.length; i++) {
+      if (ensembleProbabilities[i] > maxProb) {
+        maxProb = ensembleProbabilities[i];
         maxIndex = i;
       }
     }
@@ -106,17 +149,20 @@ class DiseaseClassifierService {
       name: _labels[maxIndex],
       confidence: maxProb * 100.0,
       classIndex: maxIndex,
-      probabilities: probabilities,
+      probabilities: ensembleProbabilities,
     );
   }
 
   /// Preprocess image in a background isolate.
   /// Decodes, resizes, and normalizes image to [1, 224, 224, 3].
   static List<List<List<List<double>>>> _preprocessImage(Uint8List imageBytes) {
-    final image = img.decodeImage(imageBytes);
+    var image = img.decodeImage(imageBytes);
     if (image == null) {
       throw Exception('Could not decode image');
     }
+
+    // Crucial: Fix image orientation based on EXIF rotation before feeding to model
+    image = img.bakeOrientation(image);
 
     final resizedImage = img.copyResize(
       image,
@@ -130,7 +176,7 @@ class DiseaseClassifierService {
 
   /// Convert an image to the model's expected input format.
   ///
-  /// Returns values in [0, 255] range as the model was trained with raw pixel values.
+  /// Returns values in [0, 1] range as the model expects normalized floats.
   static List<List<List<List<double>>>> _imageToInput(img.Image image) {
     final input = List.generate(
       1,
@@ -141,9 +187,9 @@ class DiseaseClassifierService {
           (x) {
             final pixel = image.getPixel(x, y);
             return [
-              pixel.r.toDouble(), // Red (0-255)
-              pixel.g.toDouble(), // Green (0-255)
-              pixel.b.toDouble(), // Blue (0-255)
+              pixel.r.toDouble() / 255.0, // Red (0-1)
+              pixel.g.toDouble() / 255.0, // Green (0-1)
+              pixel.b.toDouble() / 255.0, // Blue (0-1)
             ];
           },
         ),
@@ -167,10 +213,12 @@ class DiseaseClassifierService {
     }).toList();
   }
 
-  /// Dispose the interpreter and free resources.
+  /// Dispose the interpreters and free resources.
   void dispose() {
-    _interpreter?.close();
-    _interpreter = null;
+    for (var interpreter in _interpreters) {
+      interpreter.close();
+    }
+    _interpreters.clear();
     _isInitialized = false;
   }
 }

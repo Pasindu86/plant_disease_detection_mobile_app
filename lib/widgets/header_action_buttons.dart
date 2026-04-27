@@ -20,8 +20,8 @@ class HeaderActionButtons extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const ChatPage()),
             );
           },
-          icon: const Icon(Icons.forum_rounded, size: 22), // Made icon even bigger
-          label: const Text('Ask AI', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)), // Larger, bolder text
+          icon: const Icon(Icons.forum_rounded, size: 18),
+          label: const Text('Ask', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF4CAF50), // Updated to match app color
             foregroundColor: Colors.white,
@@ -32,8 +32,8 @@ class HeaderActionButtons extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
             ),
             padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12, // Increased padding
+              horizontal: 12,
+              vertical: 8,
             ),
           ),
         ),

@@ -25,14 +25,14 @@ class _GardenPageState extends State<GardenPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
-        titleSpacing: 20.0,
         title: const Text(
-          'My Garden',
+          'Reminders',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
-        actions: const [HeaderActionButtons(), SizedBox(width: 20)],
+        actions: const [HeaderActionButtons(), SizedBox(width: 16)],
       ),
       body: _buildGardenContent(),
+      floatingActionButton: _buildFAB(context),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
     );
   }
@@ -77,16 +77,19 @@ class _GardenPageState extends State<GardenPage> {
           return _buildEmptyState(context);
         }
 
-        return Stack(
+        return ListView(
+          padding: const EdgeInsets.all(16),
           children: [
-            ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Reminders Count Header
+            // Reminders Count Header
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50).withOpacity(0.1),
+                    color: const Color.fromARGB(
+                      255,
+                      255,
+                      255,
+                      255,
+                    ).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: const Color(0xFF4CAF50).withOpacity(0.3),
@@ -131,9 +134,6 @@ class _GardenPageState extends State<GardenPage> {
                   return _buildReminderCard(context, reminder);
                 }).toList(),
                 const SizedBox(height: 100), // Space for FAB
-              ],
-            ),
-            Positioned(bottom: 20, right: 16, child: _buildFAB(context)),
           ],
         );
       },
@@ -194,7 +194,7 @@ class _GardenPageState extends State<GardenPage> {
   }
 
   Widget _buildFAB(BuildContext context) {
-    return FloatingActionButton.extended(
+    return FloatingActionButton(
       onPressed: () {
         showDialog(
           context: context,
@@ -206,8 +206,8 @@ class _GardenPageState extends State<GardenPage> {
         );
       },
       backgroundColor: const Color(0xFF4CAF50),
-      icon: const Icon(Icons.add),
-      label: const Text('New Reminder'),
+      foregroundColor: Colors.white,
+      child: const Icon(Icons.add),
     );
   }
 

@@ -27,6 +27,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
 
   bool _isLoading = false;
   bool _isEditing = false;
@@ -44,6 +45,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -55,6 +57,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         _userData = userData;
         _nameController.text = userData?.name ?? '';
         _phoneController.text = userData?.phoneNumber ?? '';
+        _addressController.text = userData?.address ?? '';
       });
     } catch (e) {
       if (mounted) {
@@ -78,6 +81,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       await _userService.updateUserProfile(
         name: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
+        address: _addressController.text.trim(),
       );
 
       if (mounted) {
@@ -251,292 +255,383 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'My Profile',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: const Color(0xFF4CAF50),
-        foregroundColor: Colors.white,
-        actions: [
-          if (!_isEditing)
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              onPressed: () => setState(() => _isEditing = true),
-            ),
-          IconButton(
-            icon: const Icon(Icons.logout_outlined),
-            onPressed: _handleSignOut,
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Profile Avatar with Upload/Delete options
-                    Stack(
-                      alignment: Alignment.bottomRight,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFF4CAF50),
-                              width: 2,
-                            ),
-                          ),
-                          child: CircleAvatar(
-                            radius: 60,
-                            backgroundColor: const Color(
-                              0xFF4CAF50,
-                            ).withOpacity(0.1),
-                            backgroundImage: _userData?.profilePhoto != null
-                                ? MemoryImage(
-                                    base64Decode(_userData!.profilePhoto!),
-                                  )
-                                : null,
-                            child: _userData?.profilePhoto == null
-                                ? Text(
-                                    getInitials(_nameController.text),
-                                    style: const TextStyle(
-                                      fontSize: 40,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF4CAF50),
-                                    ),
-                                  )
-                                : null,
-                          ),
-                        ),
-                        if (_isEditing)
-                          GestureDetector(
-                            onTap: _isUploadingPhoto ? null : _pickProfileImage,
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF4CAF50),
-                                shape: BoxShape.circle,
-                              ),
-                              child: _isUploadingPhoto
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                      ),
-                                    )
-                                  : const Icon(
-                                      Icons.camera_alt,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    // Delete photo button (if photo exists and editing)
-                    if (_isEditing && _userData?.profilePhoto != null)
-                      TextButton.icon(
-                        onPressed: _isUploadingPhoto
-                            ? null
-                            : _deleteProfilePhoto,
-                        icon: const Icon(Icons.delete_outline),
-                        label: const Text('Delete Photo'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.red,
-                        ),
-                      ),
-                    const SizedBox(height: 24),
-
-                    // Email (Read-only)
-                    const SectionTitle('Email Address'),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.all(16),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Custom Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey[100],
+                        shape: BoxShape.circle,
                       ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.email_outlined,
-                            color: Color.fromARGB(255, 64, 63, 63),
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              currentUser?.email ?? 'No email',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF1A1A2E),
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: const Icon(
+                        Icons.arrow_back_ios_new,
+                        size: 20,
+                        color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 24),
-
-                    // Name Field
-                    const SectionTitle('Full Name'),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _nameController,
-                      enabled: _isEditing,
-                      decoration: profileInputDecoration(
-                        hint: 'Enter your full name',
-                        icon: Icons.person_outline,
-                        isEditing: _isEditing,
-                      ),
-                      validator: (val) {
-                        if (_isEditing && (val == null || val.isEmpty)) {
-                          return 'Name is required';
-                        }
-                        return null;
-                      },
+                  ),
+                  const SizedBox(width: 16),
+                  const Text(
+                    'My Profile',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black87,
                     ),
-                    const SizedBox(height: 20),
-
-                    // Phone Number Field
-                    const SectionTitle('Phone Number'),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _phoneController,
-                      enabled: _isEditing,
-                      keyboardType: TextInputType.phone,
-                      decoration: profileInputDecoration(
-                        hint: 'Enter your phone number',
-                        icon: Icons.phone_outlined,
-                        isEditing: _isEditing,
-                      ),
-                      validator: (val) {
-                        if (_isEditing && val != null && val.isNotEmpty) {
-                          if (!RegExp(r'^\+?[\d\s-()]+$').hasMatch(val)) {
-                            return 'Enter a valid phone number';
-                          }
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Scan History Link
-                    const Divider(),
-                    ListTile(
-                      leading: const Icon(
-                        Icons.history,
-                        color: Color(0xFF4CAF50),
-                      ),
-                      title: const Text(
-                        'My Scan History',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                  ),
+                  const Spacer(),
+                  if (!_isEditing)
+                    GestureDetector(
+                      onTap: () => setState(() => _isEditing = true),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFE5F9E9), // Light Green
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.edit_outlined,
+                          size: 20,
+                          color: Color(0xFF1EAC50),
                         ),
                       ),
-                      trailing: const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
-                        color: Colors.grey,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ScanHistoryPage(),
-                          ),
-                        );
-                      },
                     ),
-                    const Divider(),
-
-                    const SizedBox(height: 16),
-
-                    // Save/Cancel Buttons (only show when editing)
-                    if (_isEditing)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _isEditing = false;
-                                  _nameController.text = _userData?.name ?? '';
-                                  _phoneController.text =
-                                      _userData?.phoneNumber ?? '';
-                                });
-                              },
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                side: const BorderSide(
-                                  color: Color(0xFF6B7280),
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: const Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Color(0xFF6B7280),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _saveProfile,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF4CAF50),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Text(
-                                      'Save Changes',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        ],
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: _handleSignOut,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFEBEE), // Light Red
+                        shape: BoxShape.circle,
                       ),
-                  ],
-                ),
+                      child: const Icon(
+                        Icons.logout_outlined,
+                        size: 20,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
+
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Profile Avatar with Upload/Delete options
+                            Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: const Color(0xFF4CAF50),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 60,
+                                    backgroundColor: const Color(
+                                      0xFF4CAF50,
+                                    ).withOpacity(0.1),
+                                    backgroundImage:
+                                        _userData?.profilePhoto != null
+                                        ? MemoryImage(
+                                            base64Decode(
+                                              _userData!.profilePhoto!,
+                                            ),
+                                          )
+                                        : null,
+                                    child: _userData?.profilePhoto == null
+                                        ? Text(
+                                            getInitials(_nameController.text),
+                                            style: const TextStyle(
+                                              fontSize: 40,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF4CAF50),
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                ),
+                                if (_isEditing)
+                                  GestureDetector(
+                                    onTap: _isUploadingPhoto
+                                        ? null
+                                        : _pickProfileImage,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF4CAF50),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: _isUploadingPhoto
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                      Color
+                                                    >(Colors.white),
+                                              ),
+                                            )
+                                          : const Icon(
+                                              Icons.camera_alt,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            // Delete photo button (if photo exists and editing)
+                            if (_isEditing && _userData?.profilePhoto != null)
+                              TextButton.icon(
+                                onPressed: _isUploadingPhoto
+                                    ? null
+                                    : _deleteProfilePhoto,
+                                icon: const Icon(Icons.delete_outline),
+                                label: const Text('Delete Photo'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                ),
+                              ),
+                            const SizedBox(height: 24),
+
+                            // Email (Read-only)
+                            const SectionTitle('Email Address'),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.email_outlined,
+                                    color: Color.fromARGB(255, 64, 63, 63),
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      currentUser?.email ?? 'No email',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xFF1A1A2E),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Name Field
+                            const SectionTitle('Full Name'),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _nameController,
+                              enabled: _isEditing,
+                              decoration: profileInputDecoration(
+                                hint: 'Enter your full name',
+                                icon: Icons.person_outline,
+                                isEditing: _isEditing,
+                              ),
+                              validator: (val) {
+                                if (_isEditing &&
+                                    (val == null || val.isEmpty)) {
+                                  return 'Name is required';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+
+                            // Phone Number Field
+                            const SectionTitle('Phone Number'),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _phoneController,
+                              enabled: _isEditing,
+                              keyboardType: TextInputType.phone,
+                              decoration: profileInputDecoration(
+                                hint: 'Enter your phone number',
+                                icon: Icons.phone_outlined,
+                                isEditing: _isEditing,
+                              ),
+                              validator: (val) {
+                                if (_isEditing &&
+                                    val != null &&
+                                    val.isNotEmpty) {
+                                  if (!RegExp(
+                                    r'^\+?[\d\s-()]+$',
+                                  ).hasMatch(val)) {
+                                    return 'Enter a valid phone number';
+                                  }
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Address Field
+                            const SectionTitle('Address'),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _addressController,
+                              enabled: _isEditing,
+                              maxLines: 2,
+                              decoration: profileInputDecoration(
+                                hint: 'Enter your address',
+                                icon: Icons.location_on_outlined,
+                                isEditing: _isEditing,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Scan History Link
+                            const Divider(),
+                            ListTile(
+                              leading: const Icon(
+                                Icons.history,
+                                color: Color(0xFF4CAF50),
+                              ),
+                              title: const Text(
+                                'My Scan History',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              trailing: const Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                                color: Colors.grey,
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const ScanHistoryPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                            const Divider(),
+
+                            const SizedBox(height: 16),
+
+                            // Save/Cancel Buttons (only show when editing)
+                            if (_isEditing)
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _isEditing = false;
+                                          _nameController.text =
+                                              _userData?.name ?? '';
+                                          _phoneController.text =
+                                              _userData?.phoneNumber ?? '';
+                                          _addressController.text =
+                                              _userData?.address ?? '';
+                                        });
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
+                                        side: const BorderSide(
+                                          color: Color(0xFF6B7280),
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Color(0xFF6B7280),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: _isLoading
+                                          ? null
+                                          : _saveProfile,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF4CAF50,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: _isLoading
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : const Text(
+                                              'Save Changes',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
