@@ -251,29 +251,68 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'My Profile',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: const Color(0xFF4CAF50),
-        foregroundColor: Colors.white,
-        actions: [
-          if (!_isEditing)
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              onPressed: () => setState(() => _isEditing = true),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Custom Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.black87),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  const Text(
+                    'My Profile',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (!_isEditing)
+                    GestureDetector(
+                      onTap: () => setState(() => _isEditing = true),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFE5F9E9), // Light Green
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.edit_outlined, size: 20, color: Color(0xFF1EAC50)),
+                      ),
+                    ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: _handleSignOut,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFEBEE), // Light Red
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.logout_outlined, size: 20, color: Colors.red),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          IconButton(
-            icon: const Icon(Icons.logout_outlined),
-            onPressed: _handleSignOut,
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+            
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -537,6 +576,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 ),
               ),
             ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
