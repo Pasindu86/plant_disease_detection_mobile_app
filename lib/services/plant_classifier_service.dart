@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
@@ -66,8 +67,12 @@ class DualModelResult {
 /// single, more accurate final prediction.
 class PlantClassifierService {
   // ── Model 1 (original) ──────────────────────────────────────────────────
-  static const String _model1Path  = 'assets/ml/model.tflite';
+  static const String _model1Path = 'assets/ml/model.tflite';
   static const String _labels1Path = 'assets/ml/labels.txt';
+
+  // ── Model 3 (chili disease model) ───────────────────────────────────────
+  static const String _model3Path = 'assets/ml/chili_disease_model.tflite';
+  static const String _labels3Path = 'assets/ml/labels.txt';
 
   // Model 2 (train) usually trained via TensorFlow Keras flow_from_directory
   // uses alphabetical sorting for its class indices, which differs from labels.txt.
@@ -80,7 +85,7 @@ class PlantClassifierService {
     "White Spot",
   ];
 
-  static const String _model2Path  = 'assets/ml/train.tflite';
+  static const String _model2Path = 'assets/ml/train.tflite';
   // We no longer read labels for Model 2 from labels.txt to avoid the alphabetical mismatch.
 
   // ── Input size for models ────────────────────────────────────────────────
@@ -88,10 +93,13 @@ class PlantClassifierService {
 
   Interpreter? _interpreter1;
   Interpreter? _interpreter2;
+  Interpreter? _interpreter3;
   List<String> _labels1 = [];
   List<String> _labels2 = [];
+  List<String> _labels3 = [];
   bool _isLoaded = false;
   bool _model2Available = false;
+  bool _model3Available = false;
 
   bool get isLoaded => _isLoaded;
 
@@ -117,23 +125,29 @@ class PlantClassifierService {
       _model2Available = false;
     }
 
+    // Model 3 is optional – graceful fallback if missing
+    try {
+      _interpreter3 = await Interpreter.fromAsset(_model3Path);
+      _labels3 = await _loadLabels(_labels3Path);
+      _model3Available = true;
+    } catch (_) {
+      _model3Available = false;
+    }
+
     _isLoaded = true;
   }
 
   static Future<List<String>> _loadLabels(String assetPath) async {
     final raw = await rootBundle.loadString(assetPath);
-    return raw
-        .split('\n')
-        .map((l) => l.trim())
-        .where((l) => l.isNotEmpty)
-        .map((l) {
-          final parts = l.split(' ');
-          if (parts.length > 1 && int.tryParse(parts[0]) != null) {
-            return parts.sublist(1).join(' ');
-          }
-          return l;
-        })
-        .toList();
+    return raw.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).map((
+      l,
+    ) {
+      final parts = l.split(' ');
+      if (parts.length > 1 && int.tryParse(parts[0]) != null) {
+        return parts.sublist(1).join(' ');
+      }
+      return l;
+    }).toList();
   }
 
   // ── Inference ────────────────────────────────────────────────────────────
@@ -154,7 +168,14 @@ class PlantClassifierService {
     final image = img.decodeImage(bytes);
     if (image == null) throw Exception('Could not decode image');
 
-    final resized = img.copyResize(image, width: _inputSize, height: _inputSize);
+    // Camera images often have EXIF rotation; fix orientation before resizing.
+    final oriented = img.bakeOrientation(image);
+
+    final resized = img.copyResize(
+      oriented,
+      width: _inputSize,
+      height: _inputSize,
+    );
     final inputTensor = _buildInputTensor(resized);
 
     // ── Run Model 1 ─────────────────────────────────────────────────────
@@ -163,66 +184,88 @@ class PlantClassifierService {
       numLabels: _labels1.length,
       inputTensor: inputTensor,
     );
+    final probs1 = _toProbabilities(raw1);
     final pred1 = _buildPrediction(
-      raw: raw1,
+      raw: probs1,
       labels: _labels1,
       modelName: 'Model 1 (model.tflite)',
     );
 
-    // ── Model 2 unavailable → use Model 1 only ──────────────────────────
-    if (!_model2Available || _interpreter2 == null) {
-      return DualModelResult(
-        ensemble: pred1,
-        model1: pred1,
-        model2: null,
-        modelsAgree: true,
+    ModelPrediction? pred2;
+    if (_model2Available && _interpreter2 != null) {
+      final raw2 = _runRaw(
+        interpreter: _interpreter2!,
+        numLabels: _labels2.length,
+        inputTensor: inputTensor,
+      );
+      final probs2 = _toProbabilities(raw2);
+      pred2 = _buildPrediction(
+        raw: probs2,
+        labels: _labels2,
+        modelName: 'Model 2 (train.tflite)',
       );
     }
 
-    // ── Run Model 2 ─────────────────────────────────────────────────────
-    final raw2 = _runRaw(
-      interpreter: _interpreter2!,
-      numLabels: _labels2.length,
-      inputTensor: inputTensor,
-    );
-    final pred2 = _buildPrediction(
-      raw: raw2,
-      labels: _labels2,
-      modelName: 'Model 2 (train.tflite)',
+    ModelPrediction? pred3;
+    if (_model3Available && _interpreter3 != null) {
+      final raw3 = _runRaw(
+        interpreter: _interpreter3!,
+        numLabels: _labels3.length,
+        inputTensor: inputTensor,
+      );
+      final probs3 = _toProbabilities(raw3);
+      pred3 = _buildPrediction(
+        raw: probs3,
+        labels: _labels3,
+        modelName: 'Model 3 (chili_disease_model.tflite)',
+      );
+    }
+
+    // ── Ensemble fusion ("most mark") ───────────────────────────────────
+    // For each label, keep the MAX confidence across available models.
+    // This ensures if any model is strongly confident about "White spot",
+    // the final prediction reflects that.
+    final Map<String, double> fused = {};
+
+    void addToFused(ModelPrediction prediction) {
+      for (final r in prediction.results) {
+        final current = fused[r.label] ?? 0.0;
+        if (r.confidence > current) fused[r.label] = r.confidence;
+      }
+    }
+
+    addToFused(pred1);
+    if (pred2 != null) addToFused(pred2);
+    if (pred3 != null) addToFused(pred3);
+
+    final mergedResults =
+        fused.entries
+            .map(
+              (e) => ClassificationResult(
+                label: e.key,
+                confidence: e.value,
+                modelSource: 'Ensemble (max)',
+              ),
+            )
+            .toList()
+          ..sort((a, b) => b.confidence.compareTo(a.confidence));
+
+    final ensemblePred = ModelPrediction(
+      modelName: 'Ensemble (max)',
+      results: mergedResults,
     );
 
     final top1Label = pred1.top?.label ?? '';
-    final top2Label = pred2.top?.label ?? '';
-    final agree = top1Label == top2Label && top1Label.isNotEmpty;
+    final top2Label = pred2?.top?.label ?? '';
+    final top3Label = pred3?.top?.label ?? '';
 
-    // Define weights for the models (Model 2 is more heavily weighted)
-    const double w1 = 0.4;
-    const double w2 = 0.6;
-
-    // Merge by taking a weighted average of the confidence scores from both models
-    final Map<String, double> weightedConfidences = {};
-    for (var result in pred1.results) {
-      weightedConfidences[result.label] = (weightedConfidences[result.label] ?? 0.0) + (result.confidence * w1);
-    }
-    for (var result in pred2.results) {
-      weightedConfidences[result.label] = (weightedConfidences[result.label] ?? 0.0) + (result.confidence * w2);
-    }
-
-    // Create merged results and sort by highest total score
-    final List<ClassificationResult> mergedResults = weightedConfidences.entries.map((e) {
-      return ClassificationResult(
-        label: e.key,
-        confidence: e.value,
-        modelSource: 'Merged Models',
-      );
-    }).toList();
-
-    mergedResults.sort((a, b) => b.confidence.compareTo(a.confidence));
-
-    ModelPrediction ensemblePred = ModelPrediction(
-      modelName: 'Merged Models',
-      results: mergedResults,
-    );
+    final topLabels = <String>[
+      top1Label,
+      top2Label,
+      top3Label,
+    ].where((e) => e.isNotEmpty).toList();
+    final agree =
+        topLabels.isNotEmpty && topLabels.every((l) => l == topLabels.first);
 
     return DualModelResult(
       ensemble: ensemblePred,
@@ -262,8 +305,7 @@ class PlantClassifierService {
     required int numLabels,
     required List<dynamic> inputTensor,
   }) {
-    final outputTensor =
-        List.filled(numLabels, 0.0).reshape([1, numLabels]);
+    final outputTensor = List.filled(numLabels, 0.0).reshape([1, numLabels]);
     interpreter.run(inputTensor, outputTensor);
     return (outputTensor[0] as List<double>);
   }
@@ -273,16 +315,78 @@ class PlantClassifierService {
     required List<String> labels,
     required String modelName,
   }) {
-    final results = <ClassificationResult>[
-      for (int i = 0; i < labels.length; i++)
-        ClassificationResult(
-          label: labels[i],
-          confidence: raw[i],
-          modelSource: modelName,
-        ),
-    ]..sort((a, b) => b.confidence.compareTo(a.confidence));
+    final Map<String, double> byLabel = {};
+    for (int i = 0; i < labels.length; i++) {
+      final label = _canonicalizeLabel(labels[i]);
+      final score = raw[i];
+      final current = byLabel[label] ?? -double.infinity;
+      if (score > current) byLabel[label] = score;
+    }
+
+    final results =
+        byLabel.entries
+            .map(
+              (e) => ClassificationResult(
+                label: e.key,
+                confidence: e.value,
+                modelSource: modelName,
+              ),
+            )
+            .toList()
+          ..sort((a, b) => b.confidence.compareTo(a.confidence));
 
     return ModelPrediction(modelName: modelName, results: results);
+  }
+
+  static String _canonicalizeLabel(String label) {
+    final trimmed = label.trim();
+    final lower = trimmed.toLowerCase();
+
+    switch (lower) {
+      case 'healthy leaves':
+      case 'healthy leaf':
+        return 'Healthy Leaf';
+      case 'white spot':
+        // Keep consistent with the disease info DB naming.
+        return 'White spot';
+      case 'bacterial spot':
+        return 'Bacterial Spot';
+      case 'cercospora leaf spot':
+        return 'Cercospora Leaf Spot';
+      case 'curl virus':
+        return 'Curl Virus';
+      case 'nutrition deficiency':
+        return 'Nutrition Deficiency';
+      default:
+        return trimmed;
+    }
+  }
+
+  static List<double> _toProbabilities(List<double> raw) {
+    final sum = raw.fold<double>(0.0, (a, b) => a + b);
+
+    // If this already looks like probabilities, keep as-is.
+    if ((sum - 1.0).abs() <= 0.1 && raw.every((e) => e >= 0.0 && e <= 1.0)) {
+      return raw;
+    }
+
+    // Otherwise, assume logits and apply softmax.
+    final maxLogit = raw.reduce((a, b) => a > b ? a : b);
+    double expSum = 0.0;
+    final exps = List<double>.filled(raw.length, 0.0);
+    for (int i = 0; i < raw.length; i++) {
+      final v = (raw[i] - maxLogit);
+      final ev = v.isFinite ? math.exp(v) : 0.0;
+      exps[i] = ev;
+      expSum += ev;
+    }
+    if (expSum == 0.0) {
+      return List<double>.filled(raw.length, 0.0);
+    }
+    for (int i = 0; i < exps.length; i++) {
+      exps[i] = exps[i] / expSum;
+    }
+    return exps;
   }
 
   // ── Dispose ──────────────────────────────────────────────────────────────
@@ -290,8 +394,10 @@ class PlantClassifierService {
   void dispose() {
     _interpreter1?.close();
     _interpreter2?.close();
+    _interpreter3?.close();
     _interpreter1 = null;
     _interpreter2 = null;
+    _interpreter3 = null;
     _isLoaded = false;
   }
 }
