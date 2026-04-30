@@ -67,7 +67,7 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
           'Preview',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF4CAF50),
+        backgroundColor: const Color(0xFF1EAC50),
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -101,10 +101,20 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
                           child: const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.broken_image, size: 64, color: Colors.grey),
+                              Icon(
+                                Icons.broken_image,
+                                size: 64,
+                                color: Colors.grey,
+                              ),
                               SizedBox(height: 16),
-                              Text('Image file is missing or deleted.', style: TextStyle(color: Colors.grey)),
-                              Text('Please go back and select a new image.', style: TextStyle(color: Colors.grey)),
+                              Text(
+                                'Image file is missing or deleted.',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                              Text(
+                                'Please go back and select a new image.',
+                                style: TextStyle(color: Colors.grey),
+                              ),
                             ],
                           ),
                         ),
@@ -162,7 +172,7 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
               child: ElevatedButton(
                 onPressed: _isAnalyzing ? null : _analyzeImage,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4CAF50),
+                  backgroundColor: const Color(0xFF1EAC50),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),

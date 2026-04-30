@@ -16,84 +16,153 @@ class _ScanPageState extends State<ScanPage> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? picked = await _picker.pickImage(source: source, maxWidth: 2048);
+      final XFile? picked = await _picker.pickImage(
+        source: source,
+        maxWidth: 2048,
+      );
       if (!mounted) return;
       if (picked == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No image selected')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No image selected')));
         return;
       }
 
       // Navigate to a simple preview page
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => ImagePreviewPage(imagePath: picked.path),
-      ));
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ImagePreviewPage(imagePath: picked.path),
+        ),
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error selecting image: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error selecting image: $e')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          'Scan Plant',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          'Identify Disease',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: Colors.black87,
+            fontSize: 22,
+          ),
         ),
-        backgroundColor: const Color(0xFF4CAF50),
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
         centerTitle: true,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                color: const Color(0xFF4CAF50).withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.document_scanner_outlined,
-                size: 80,
-                color: Color(0xFF4CAF50),
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Scan Your Plant',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Take a photo to identify diseases',
-              style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-            ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ScanOptionCard(
-                  icon: Icons.camera_alt_rounded,
-                  label: 'Camera',
-                  onTap: () => _pickImage(ImageSource.camera),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 240,
+                height: 240,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE5F9E9),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 20),
-                ScanOptionCard(
-                  icon: Icons.photo_library_rounded,
-                  label: 'Gallery',
-                  onTap: () => _pickImage(ImageSource.gallery),
+                child: Center(
+                  child: Container(
+                    width: 170,
+                    height: 170,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.6),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.document_scanner_rounded,
+                      size: 80,
+                      color: Color(0xFF1EAC50),
+                    ),
+                  ),
                 ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 48),
+              const Text(
+                'Scan Your Plant',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 40),
+                child: Text(
+                  'Take a clear photo of the affected leaves to help us accurately identify the disease.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.black54,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.lightbulb_outline_rounded,
+                      color: Colors.orange.shade800,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Note: Please capture a clear image. Ensure it is a chili plant leaf only for accurate results.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.orange.shade900,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ScanOptionCard(
+                    icon: Icons.camera_alt_outlined,
+                    label: 'Camera',
+                    bgColor: const Color(0xFFE5F9E9), // Light Green
+                    onTap: () => _pickImage(ImageSource.camera),
+                  ),
+                  const SizedBox(width: 20),
+                  ScanOptionCard(
+                    icon: Icons.photo_library_outlined,
+                    label: 'Gallery',
+                    bgColor: const Color(0xFFF0F5FF), // Light Blue
+                    onTap: () => _pickImage(ImageSource.gallery),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
