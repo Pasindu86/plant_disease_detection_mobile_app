@@ -29,7 +29,7 @@ class DiseaseResultPage extends StatelessWidget {
           SliverAppBar(
             expandedHeight: 280,
             pinned: true,
-            backgroundColor: const Color(0xFF4CAF50),
+            backgroundColor: const Color(0xFF1EAC50),
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
@@ -221,7 +221,7 @@ class DiseaseResultPage extends StatelessWidget {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4CAF50),
+                      backgroundColor: const Color(0xFF1EAC50),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -266,7 +266,7 @@ class DiseaseResultPage extends StatelessWidget {
   Widget _buildConfidenceCard() {
     final confidence = result.confidence;
     final color = confidence >= 80
-        ? const Color(0xFF4CAF50)
+        ? const Color(0xFF1EAC50)
         : confidence >= 60
         ? Colors.orange
         : Colors.red;
@@ -363,10 +363,10 @@ class DiseaseResultPage extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50).withOpacity(0.1),
+                  color: const Color(0xFF1EAC50).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: const Color(0xFF4CAF50), size: 20),
+                child: Icon(icon, color: const Color(0xFF1EAC50), size: 20),
               ),
               const SizedBox(width: 12),
               Text(
@@ -444,7 +444,7 @@ class DiseaseResultPage extends StatelessWidget {
             height: 6,
             margin: const EdgeInsets.only(top: 7, right: 10),
             decoration: const BoxDecoration(
-              color: Color(0xFF4CAF50),
+              color: Color(0xFF1EAC50),
               shape: BoxShape.circle,
             ),
           ),
