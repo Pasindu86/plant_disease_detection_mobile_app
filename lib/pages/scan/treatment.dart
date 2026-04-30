@@ -95,10 +95,10 @@ class TreatmentSection extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50).withOpacity(0.1),
+                  color: const Color(0xFF1EAC50).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: const Color(0xFF4CAF50), size: 20),
+                child: Icon(icon, color: const Color(0xFF1EAC50), size: 20),
               ),
               const SizedBox(width: 12),
               Text(
@@ -129,7 +129,7 @@ class TreatmentSection extends StatelessWidget {
             height: 24,
             margin: const EdgeInsets.only(right: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFF4CAF50).withOpacity(0.1),
+              color: const Color(0xFF1EAC50).withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(
@@ -138,7 +138,7 @@ class TreatmentSection extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF4CAF50),
+                  color: Color(0xFF1EAC50),
                 ),
               ),
             ),
@@ -208,7 +208,7 @@ class _CareTreatmentStepsSheetState extends State<CareTreatmentStepsSheet> {
               // Override theme to change Stepper colors
               data: Theme.of(context).copyWith(
                 colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: const Color(0xFF4CAF50), // Active step color
+                  primary: const Color(0xFF1EAC50), // Active step color
                 ),
               ),
               child: Stepper(
@@ -225,7 +225,7 @@ class _CareTreatmentStepsSheetState extends State<CareTreatmentStepsSheet> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Care plan marked as active!'),
-                        backgroundColor: Color(0xFF4CAF50),
+                        backgroundColor: Color(0xFF1EAC50),
                       ),
                     );
                   }
@@ -246,7 +246,7 @@ class _CareTreatmentStepsSheetState extends State<CareTreatmentStepsSheet> {
                           child: ElevatedButton(
                             onPressed: details.onStepContinue,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF4CAF50),
+                              backgroundColor: const Color(0xFF1EAC50),
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
@@ -264,9 +264,9 @@ class _CareTreatmentStepsSheetState extends State<CareTreatmentStepsSheet> {
                             child: OutlinedButton(
                               onPressed: details.onStepCancel,
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: const Color(0xFF4CAF50),
+                                foregroundColor: const Color(0xFF1EAC50),
                                 side: const BorderSide(
-                                  color: Color(0xFF4CAF50),
+                                  color: Color(0xFF1EAC50),
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 12,

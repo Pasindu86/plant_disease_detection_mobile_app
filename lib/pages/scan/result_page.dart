@@ -152,7 +152,7 @@ class _ResultPageState extends State<ResultPage> {
                 valueColor: AlwaysStoppedAnimation<Color>(
                   isTop
                       ? (r.isHealthy
-                            ? const Color(0xFF4CAF50)
+                            ? const Color(0xFF1EAC50)
                             : const Color(0xFFE53935))
                       : Colors.grey[400]!,
                 ),
@@ -186,14 +186,19 @@ class _ResultPageState extends State<ResultPage> {
     final info = _getDiseaseInfo(topResult?.label ?? '');
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           'Analysis Result',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: Colors.black87,
+            fontSize: 22,
+          ),
         ),
-        backgroundColor: const Color(0xFF4CAF50),
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -274,7 +279,7 @@ class _ResultPageState extends State<ResultPage> {
                     ),
                     decoration: BoxDecoration(
                       color: isHealthy
-                          ? const Color(0xFF4CAF50)
+                          ? const Color(0xFF1EAC50)
                           : const Color(0xFFE53935),
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -330,7 +335,7 @@ class _ResultPageState extends State<ResultPage> {
                         decoration: BoxDecoration(
                           color:
                               (isHealthy
-                                      ? const Color(0xFF4CAF50)
+                                      ? const Color(0xFF1EAC50)
                                       : const Color(0xFFE53935))
                                   .withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(14),
@@ -340,7 +345,7 @@ class _ResultPageState extends State<ResultPage> {
                               ? Icons.eco_rounded
                               : Icons.bug_report_rounded,
                           color: isHealthy
-                              ? const Color(0xFF4CAF50)
+                              ? const Color(0xFF1EAC50)
                               : const Color(0xFFE53935),
                           size: 26,
                         ),
@@ -383,7 +388,7 @@ class _ResultPageState extends State<ResultPage> {
                       backgroundColor: Colors.grey[200],
                       valueColor: AlwaysStoppedAnimation<Color>(
                         isHealthy
-                            ? const Color(0xFF4CAF50)
+                            ? const Color(0xFF1EAC50)
                             : const Color(0xFFE53935),
                       ),
                     ),
@@ -471,8 +476,8 @@ class _ResultPageState extends State<ResultPage> {
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF4CAF50),
-                  side: const BorderSide(color: Color(0xFF4CAF50), width: 2),
+                  foregroundColor: const Color(0xFF1EAC50),
+                  side: const BorderSide(color: Color(0xFF1EAC50), width: 2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),

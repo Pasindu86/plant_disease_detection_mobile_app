@@ -12,12 +12,7 @@ import '../models/disease_model.dart';
 /// Service for classifying chili leaf diseases using a TFLite model.
 ///
 /// Uses MobileNetV2-based model trained on 6 classes:
-/// - Bacterial Spot
-/// - Cercospora Leaf Spot
-/// - Curl Virus
-/// - Healthy Leaf
-/// - Nutrition Deficiency
-/// - White spot
+
 class DiseaseClassifierService {
   static const List<String> _modelPaths = [
     'assets/ml/chili_disease_model.tflite',
@@ -93,10 +88,10 @@ class DiseaseClassifierService {
     final imageFile = File(imagePath);
     final imageBytes = await imageFile.readAsBytes();
 
-    // Do heavy image processing in a background isolate
+    // image processing in a background isolate
     final input = await compute(_preprocessImage, imageBytes);
 
-    // Initialize list to hold sum of probabilities from all models
+    // Initialize  sum of probabilities from all models
     List<double> ensembleProbabilities = List.filled(_labels.length, 0.0);
 
     for (var interpreter in _interpreters) {
@@ -154,8 +149,7 @@ class DiseaseClassifierService {
   }
 
   /// Preprocess image in a background isolate.
-  /// Decodes, resizes, and normalizes image to [1, 224, 224, 3].
-  static List<List<List<List<double>>>> _preprocessImage(Uint8List imageBytes) {
+   static List<List<List<List<double>>>> _preprocessImage(Uint8List imageBytes) {
     var image = img.decodeImage(imageBytes);
     if (image == null) {
       throw Exception('Could not decode image');

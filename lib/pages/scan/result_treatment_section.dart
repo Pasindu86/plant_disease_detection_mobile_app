@@ -40,7 +40,7 @@ class ResultTreatmentSection extends StatelessWidget {
                 children: [
                   const Icon(
                     Icons.local_florist_rounded,
-                    color: Color(0xFF4CAF50),
+                    color: Color(0xFF1EAC50),
                     size: 22,
                   ),
                   const SizedBox(width: 8),
@@ -94,7 +94,7 @@ class ResultTreatmentSection extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Treatment saved to Care Treatments!'),
-                          backgroundColor: Color(0xFF4CAF50),
+                          backgroundColor: Color(0xFF1EAC50),
                           duration: Duration(seconds: 3),
                         ),
                       );
